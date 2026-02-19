@@ -1,0 +1,65 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #ffffff;
+  color: #111;
+}
+
+.navbar {
+  background: #1e1e1e;
+  padding: 16px 0;
+}
+
+.navbar__inner {
+  max-width: 1600px;         
+  margin: 0 auto;
+  padding: 0 32px;
+
+  display: flex;
+  align-items: center;        
+  gap: 16px;                  
+}
+
+.search__input {
+  flex: 1;                    
+  height: 40px;
+  padding: 0 16px;
+
+  border-radius: 9px;
+  border: 1px solid #d0d0d0;
+  outline: none;
+}
+
+.search__input:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.25);
+}
+
+.btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn--ghost {
+  background: #333333;
+  color: #ffffff;
+}
+
+.btn--primary {
+  background: #ff6b00;
+  color: #ffffff;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.page {
+  padding: 24px 32px;
+}
