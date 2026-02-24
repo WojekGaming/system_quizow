@@ -10,21 +10,74 @@
 
   <header class="navbar">
     <div class="navbar__inner">
-      <input class="search__input" type="text" placeholder="Wyszukaj quiz..." />
+      <input id="q" class="search__input" type="text" placeholder="Wyszukaj quiz..." />
 
-      <button class="btn btn--ghost" type="button">
+      <button class="btn btn--ghost" id="toggleFilters" type="button">
         Filtry
       </button>
 
-      <button class="btn btn--primary" type="button">
+      <button class="btn btn--primary" id="doSearch" type="button">
         Search
       </button>
     </div>
   </header>
+  <section class="filters-panel" id="filtersPanel">
+    <div class="filters-inner">
+      <div class="filter-group">
+        <label for="sortBy">Sortuj po</label>
+        <select class="control" id="sortBy" name="sortBy">
+          <option value="created_desc">Dacie utworzenia (najnowsze)</option>
+          <option value="created_asc">Dacie utworzenia (najstarsze)</option>
+          <option value="questions_desc">Liczbie pytań (malejąco)</option>
+          <option value="questions_asc">Liczbie pytań (rosnąco)</option>
+          <option value="rating_desc">Ocenie (malejąco)</option>
+          <option value="rating_asc">Ocenie (rosnąco)</option>
+          <option value="premium_desc">Premium (najpierw)</option>
+          <option value="premium_asc">Bez premium (najpierw)</option>
+        </select>
+      </div>
 
+      <div class="filter-group">
+        <label for="category">Kategoria</label>
+        <select class="control" id="category" name="category">
+          <option value="">Wszystkie</option>
+          <option value="historia">hist</option>
+          <option value="geografia">geo</option>
+          <option value="angielski">ang</option>     <!-- *może* później dodać automatyzowanie typów quizu-->   
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="author">Użytkownik (autor)</label>
+        <input class="control" id="author" name="author" type="text" placeholder="np. Giga Rozkurwiacz335" />
+      </div>
+      <div class="filter-group date">
+        <label>Data utworzenia</label>
+        <div class="control-row">
+          <input class="control" id="dateFrom" name="dateFrom" type="date" />
+          <span class="dash">-</span>
+          <input class="control" id="dateTo" name="dateTo" type="date" />
+        </div>
+      </div>
+      <div class="filter-group">
+        <label class="checkline">
+          <input id="premiumOnly" name="premiumOnly" type="checkbox" />
+          Tylko premium
+        </label>
+      </div>
+      <div class="filter-group rating">
+        <label for="ratingMin">Ocena min.</label>
+        <input class="control" id="ratingMin" name="ratingMin" type="number" min="1" max="10" placeholder="1-10"/>
+        <small class="hint">Skala ocen: 1-10</small>
+      </div>
+    <div class="filters-actions">
+      <button class="btn btn--ghost" id="resetFilters" type="button">Reset</button>
+      <button class="btn btn--primary" id="applyFilters" type="button">Zastosuj</button>
+    </div>
+    </div>
+  </section>
   <main class="page">
 
   </main>
-
+<script src="search.js"></script>
 </body>
 </html>

@@ -1,3 +1,16 @@
+/* Paleta kolorów */
+:root{
+  --primary: #494D50;
+  --cta: #FF6B00;
+  --ctaHover: #E65F00;
+  --teal: #1F7A8C;
+  --light: #E6E8EA;
+  --dark: #2F3336;
+  --border: #C7CACC;
+  --disabled: #9AA0A6;
+}
+
+
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
@@ -63,3 +76,112 @@ body {
 .page {
   padding: 24px 32px;
 }
+
+
+
+/* filtry do animacji (dropdown) */
+
+.filters-panel{
+  background-color: var(--light);
+  border-bottom: 1px solid var(--border);
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height .30s ease, opacity .20s ease;
+}
+.filters-panel.open{
+  max-height: 520px;
+  opacity: 1;
+}
+.filters-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 18px 32px;
+  display: grid;
+  grid-template-columns: repeat(6,minmax(140px, 1fr));
+  gap: 18px 24px;
+  align-items: end;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+.filter-group.checkbox{
+  min-width: 180px;
+}
+.filter-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+.hint{
+  font-size: 12px;
+  color: var(--primary);
+  opacity: 0.75;
+}
+.control{
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: #fff;
+  outline: none;
+}
+.control::placeholder{
+  color: var(--disabled);
+}
+.control:focus{
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.18);
+}
+
+.control-row{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dash{
+  color: var(--primary);
+  opacity: 0.7;
+}
+.checkline{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+}
+.checkline input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  accent-color: var(--teal);
+}
+.filter-group.rating{
+  min-width: 140px;
+}
+.filter-group.date{
+  grid-column: span 2;
+}
+.filter-group.rating {
+  grid-column: 5 / 7;
+}
+
+/* reset, zastosuj */
+.filters-actions{
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+
+
+
+
+
+
+
+
+
