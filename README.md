@@ -1,4 +1,4 @@
-# ![Quizzies Logo](logo.svg) Quizzies
+# ![Quizzies Logo](public/images/logo.svg) Quizzies
 
 ## Interaktywna platforma do quizów
 
