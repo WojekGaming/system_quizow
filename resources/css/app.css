@@ -181,3 +181,92 @@ body.quiz-play-body{
     width: 100%;
   }
 }
+
+
+
+/* ADMIN */
+
+.admin-container{
+  width: min(1100px, 95%);
+  margin: auto;
+}
+
+.admin-title{
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.admin-filters{
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-list{
+  display: grid;
+  gap: 16px;
+}
+
+.admin-card{
+  background: var(--dark);
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: 0.2s;
+}
+
+.admin-card:hover{
+  border-color: var(--cta);
+}
+
+.admin-card-top{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.admin-title-small{
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.admin-meta{
+  font-size: 13px;
+  color: var(--border);
+}
+
+.admin-card-bottom{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.admin-actions{
+  display: flex;
+  gap: 10px;
+}
+
+.badge.premium{
+  background: var(--cta);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* BUTTON DANGER */
+
+.btn-danger{
+  background: var(--error);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.btn-danger:hover{
+  opacity: 0.85;
+}
+
+
+

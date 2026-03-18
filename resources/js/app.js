@@ -19,3 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+//ADMIN RESET FILTER
+
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('adminResetFilters');
+    const search = document.getElementById('adminSearch');
+    const category = document.getElementById('adminCategory');
+    const premium = document.getElementById('adminPremium');
+
+    if (!btn || !search || !category || !premium) return;
+
+    btn.addEventListener('click', function () {
+        search.value = '';
+        category.selectedIndex = 0;
+        premium.selectedIndex = 0;
+    });
+});

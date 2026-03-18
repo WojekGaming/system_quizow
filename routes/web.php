@@ -19,6 +19,10 @@ Route::get('/quiz-play', function() {
     return view('quiz-play');
 });
 
+Route::get('/admin', function(){
+    return view('admin-dashboard');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
