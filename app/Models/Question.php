@@ -26,9 +26,11 @@ class Question extends Model
         'is_public_base'  => 'boolean',
     ];
 
-    public function category()
+    public function quizzes()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Quiz::class, 'quiz_question')
+            ->withPivot('question_order', 'points')
+            ->withTimestamps();
     }
 
     public function creator()
@@ -36,9 +38,8 @@ class Question extends Model
         return $this->belongsTo(User::class, 'creator_id');
     }
 
-    public function quizzes()
+    public function category()
     {
-        return $this->belongsToMany(Quiz::class, 'quiz_question')
-                    ->withPivot('question_order', 'points');
+        return $this->belongsTo(Category::class);
     }
 }

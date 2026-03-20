@@ -11,7 +11,7 @@
                 </h1>
                 <p class="dash-welcome__sub">Gotowy na kolejne wyzwanie?</p>
             </div>
-            <a href="{{ url('/create-quiz') }}" class="dash-cta-btn">
+            <a href="{{ route('quizzes.create') }}" class="dash-cta-btn">
                 ＋ Stwórz quiz
             </a>
         </div>
@@ -47,7 +47,7 @@
             <div class="dash-panel">
                 <div class="dash-panel__head">
                     <h2 class="dash-panel__title">Moje quizy</h2>
-                    <a href="{{ url('/create-quiz') }}" class="dash-panel__link">+ Nowy quiz →</a>
+                    <a href="{{ route('quizzes.create') }}" class="dash-panel__link">+ Nowy quiz →</a>
                 </div>
 
                 @forelse($myQuizzes as $quiz)
@@ -68,7 +68,7 @@
                             </div>
                         </div>
                         <div class="dash-quiz-item__actions">
-                            <a href="{{ url('/create-quiz') }}" class="dash-icon-btn" title="Edytuj">✏️</a>
+                            <a href="{{ route('quizzes.edit', $quiz) }}" class="dash-icon-btn" title="Edytuj">✏️</a>
                             <a href="{{ url('/quiz-play') }}" class="dash-icon-btn" title="Zagraj">▶️</a>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
                     <div class="dash-empty">
                         <div class="dash-empty__icon">📝</div>
                         <p>Nie masz jeszcze żadnych quizów.</p>
-                        <a href="{{ url('/create-quiz') }}" class="dash-empty__link">Stwórz pierwszy quiz →</a>
+                        <a href="{{ route('quizzes.create') }}" class="dash-empty__link">Stwórz pierwszy quiz →</a>
                     </div>
                 @endforelse
             </div>
