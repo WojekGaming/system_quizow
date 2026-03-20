@@ -18,7 +18,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        return redirect()->intended('/dashboard'); // lub '/'
+        return redirect()->intended('/dashboard');
     }
 
     public function destroy(Request $request)

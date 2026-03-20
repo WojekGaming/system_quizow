@@ -1,598 +1,769 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quiz Builder</title>
-  <style>
-    :root{
-      --primary: #494D50;
-      --cta: #FF6B00;
-      --ctaHover: #E65F00;
-      --teal: #1F7A8C;
-      --light: #E6E8EA;
-      --dark: #2F3336;
-      --border: #C7CACC;
-      --disabled: #9AA0A6;
-      --success: #2E9E5B;
-      --error: #D64545;
-      --warning: #F2A541;
-      --page: #1f2326;
-      --panel: #2a2f33;
-      --panel2: #31363b;
-      --input: #3a4045;
-    }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Quiz Builder — Quizzies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg, #23272a 0%, #1d2023 100%);
-      color: var(--light);
-    }
+        :root {
+            --cta: #FF6B00; --ctaHover: #E65F00; --teal: #1F7A8C;
+            --light: #E6E8EA; --border: #C7CACC; --warning: #F2A541;
+            --panel: #2a2f33; --panel2: #31363b; --input: #3a4045;
+        }
 
-    .app {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 340px 1fr;
-    }
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background: linear-gradient(180deg, #23272a 0%, #1d2023 100%);
+            color: var(--light);
+            min-height: 100vh;
+        }
 
-    .sidebar {
-      background: #202427;
-      border-right: 1px solid rgba(255,255,255,0.08);
-      padding: 24px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-    }
+        /* ── Layout ── */
+        .qb-app {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+        }
 
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+        /* ── Sidebar ── */
+        .qb-sidebar {
+            background: #202427;
+            border-right: 1px solid rgba(255,255,255,0.08);
+            padding: 22px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
 
-    .brand h1 {
-      margin: 0;
-      font-size: 28px;
-      letter-spacing: 0.3px;
-    }
+        .qb-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 4px;
+        }
 
-    .brand p {
-      margin: 0;
-      color: var(--border);
-      font-size: 14px;
-    }
+        .qb-brand-icon {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #ff6b00, #ff9a3c);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0;
+        }
 
-    .side-block {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      padding: 16px;
-    }
+        .qb-brand-text { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.3px; }
+        .qb-brand-text span { color: #ff6b00; }
 
-    .side-block h2 {
-      margin: 0 0 14px;
-      font-size: 16px;
-    }
+        .side-block {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 16px;
+        }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
+        .side-block h2 { margin: 0 0 14px; font-size: 15px; font-weight: 600; color: #fff; }
 
-    .field:last-child { margin-bottom: 0; }
+        .qb-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 13px; }
+        .qb-field:last-child { margin-bottom: 0; }
 
-    label {
-      font-size: 13px;
-      font-weight: 700;
-      color: white;
-    }
+        .qb-field label {
+            font-size: 11px; font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase; letter-spacing: .5px;
+        }
 
-    .control, textarea, select {
-      width: 100%;
-      background: var(--input);
-      color: white;
-      border: 1px solid #4a5156;
-      border-radius: 10px;
-      padding: 12px 13px;
-      outline: none;
-      font: inherit;
-    }
+        .qb-control, .qb-textarea, .qb-select {
+            width: 100%;
+            background: var(--input);
+            color: white;
+            border: 1px solid #4a5156;
+            border-radius: 10px;
+            padding: 10px 12px;
+            outline: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            transition: border-color .2s;
+        }
 
-    .control:focus, textarea:focus, select:focus {
-      border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(31,122,140,0.18);
-    }
+        .qb-control:focus, .qb-textarea:focus, .qb-select:focus {
+            border-color: var(--cta);
+            box-shadow: 0 0 0 3px rgba(255,107,0,0.12);
+        }
 
-    textarea {
-      resize: vertical;
-      min-height: 90px;
-    }
+        .qb-textarea { resize: vertical; min-height: 80px; }
+        .qb-select option { background: #2a2f33; }
 
-    .questions-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+        /* ── Questions list ── */
+        .questions-list { display: flex; flex-direction: column; gap: 8px; }
 
-    .question-item {
-      background: #2b3034;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      padding: 12px 14px;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
+        .question-item {
+            background: #2b3034;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 11px 13px;
+            cursor: pointer;
+            transition: .2s ease;
+        }
 
-    .question-item:hover {
-      border-color: rgba(255,107,0,0.35);
-      transform: translateY(-1px);
-    }
+        .question-item:hover { border-color: rgba(255,107,0,0.35); transform: translateY(-1px); }
+        .question-item.active { border-color: var(--cta); box-shadow: 0 0 0 2px rgba(255,107,0,0.15); }
 
-    .question-item.active {
-      border-color: var(--cta);
-      box-shadow: 0 0 0 2px rgba(255,107,0,0.15);
-    }
+        .q-item-top { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+        .q-number { font-size: 11px; color: var(--border); text-transform: uppercase; letter-spacing: .4px; }
+        .q-state { font-size: 11px; color: var(--warning); font-weight: 700; }
+        .q-state.saved { color: #4ade80; }
+        .q-name { font-size: 13px; line-height: 1.35; color: rgba(255,255,255,0.8); }
 
-    .question-item_top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 6px;
-    }
+        /* ── Buttons ── */
+        .qb-btn {
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            transition: .2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
 
-    .question-number {
-      font-size: 12px;
-      color: var(--border);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
+        .qb-btn-secondary { background: #494D50; color: white; border-color: #5c6166; }
+        .qb-btn-secondary:hover { background: #5a5f64; }
 
-    .question-state {
-      font-size: 12px;
-      color: var(--warning);
-      font-weight: 700;
-    }
+        .qb-btn-primary {
+            background: var(--cta); color: white; border-color: var(--cta);
+            box-shadow: 0 4px 12px rgba(255,107,0,0.22);
+        }
+        .qb-btn-primary:hover { background: var(--ctaHover); box-shadow: 0 0 16px rgba(255,107,0,0.38); }
 
-    .question-name {
-      font-size: 14px;
-      line-height: 1.35;
-      color: white;
-    }
+        .qb-btn-danger {
+            background: rgba(214,69,69,0.15); color: #f87171;
+            border-color: rgba(214,69,69,0.3);
+        }
+        .qb-btn-danger:hover { background: rgba(214,69,69,0.25); }
+        .qb-btn-full { width: 100%; }
 
-    .btn {
-      height: 44px;
-      padding: 0 16px;
-      border-radius: 10px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      font: inherit;
-      font-weight: 700;
-      transition: 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
+        /* ── Toggle row ── */
+        .qb-toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+        .qb-toggle-row label { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; text-transform: none; letter-spacing: 0; }
+        .qb-toggle-row input[type=checkbox] { accent-color: var(--cta); width: 16px; height: 16px; }
 
-    .btn-secondary {
-      background: var(--primary);
-      color: white;
-      border-color: #5c6166;
-    }
+        /* ── Workspace ── */
+        .qb-workspace {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
 
-    .btn-secondary:hover {
-      background: #5a5f64;
-    }
+        .qb-workspace-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
 
-    .btn-primary {
-      background: var(--cta);
-      color: white;
-      border-color: var(--cta);
-      box-shadow: 0 4px 12px rgba(255,107,0,0.22);
-    }
+        .qb-workspace-title h2 { margin: 0; font-size: 26px; font-weight: 700; color: #fff; }
+        .qb-workspace-title p { margin: 5px 0 0; color: var(--border); font-size: 14px; }
 
-    .btn-primary:hover {
-      background: var(--ctaHover);
-      box-shadow: 0 0 16px rgba(255,107,0,0.38);
-    }
+        /* ── Editor ── */
+        .qb-editor {
+            background: var(--panel);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 24px;
+            display: grid;
+            gap: 20px;
+        }
 
-    .btn-full { width: 100%; }
+        .qb-editor-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 20px;
+            align-items: start;
+        }
 
-    .workspace {
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-    }
+        .qb-editor-block {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 18px;
+        }
 
-    .workspace-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      align-items: center;
-    }
+        .qb-editor-block h3 { margin: 0 0 14px; font-size: 17px; font-weight: 600; }
 
-    .workspace-title h2 {
-      margin: 0;
-      font-size: 30px;
-    }
+        /* ── Upload zone ── */
+        .upload-zone {
+            min-height: 220px;
+            border: 2px dashed #4b5257;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.01);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            text-align: center;
+            gap: 12px;
+            transition: border-color .2s;
+            cursor: pointer;
+        }
 
-    .workspace-title p {
-      margin: 6px 0 0;
-      color: var(--border);
-    }
+        .upload-zone:hover { border-color: rgba(255,107,0,0.4); }
+        .upload-zone img { max-width: 100%; max-height: 200px; object-fit: contain; display: none; border-radius: 10px; }
+        .upload-placeholder { color: var(--border); line-height: 1.5; max-width: 260px; font-size: 13px; }
+        .small-note { font-size: 12px; color: var(--border); }
 
-    .editor {
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      padding: 24px;
-      display: grid;
-      gap: 22px;
-    }
+        /* ── Answers ── */
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 14px;
+        }
 
-    .editor-grid {
-      display: grid;
-      grid-template-columns: 1.25fr 0.95fr;
-      gap: 22px;
-      align-items: start;
-    }
+        .answer-tile {
+            background: var(--panel2);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 13px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: .2s ease;
+        }
 
-    .editor-block {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      padding: 18px;
-    }
+        .answer-tile:hover { border-color: rgba(255,107,0,0.28); transform: translateY(-1px); }
+        .answer-tile.correct-tile { border-color: rgba(46,158,91,0.4); background: rgba(46,158,91,0.05); }
 
-    .editor-block h3 {
-      margin: 0 0 14px;
-      font-size: 18px;
-    }
+        .answer-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 
-    .upload-zone {
-      min-height: 260px;
-      border: 2px dashed #4b5257;
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 18px;
-      text-align: center;
-      gap: 14px;
-    }
+        .answer-letter {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: #494D50;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 13px;
+        }
 
-    .upload-zone img {
-      max-width: 100%;
-      max-height: 260px;
-      object-fit: contain;
-      display: none;
-      border-radius: 12px;
-    }
+        .correct-line {
+            display: flex; align-items: center; gap: 7px;
+            color: var(--border); font-size: 13px;
+            white-space: nowrap; cursor: pointer;
+        }
 
-    .upload-placeholder {
-      color: var(--disabled);
-      line-height: 1.5;
-      max-width: 280px;
-    }
+        .correct-line input { accent-color: var(--cta); width: 15px; height: 15px; }
 
-    .small-note {
-      font-size: 12px;
-      color: var(--border);
-    }
+        .qb-editor-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
 
-    .hidden-input {
-      display: none;
-    }
+        /* ── Toast ── */
+        .qb-toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #2a2f33;
+            border: 1px solid rgba(255,107,0,0.3);
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: #fff; font-size: 14px; font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            z-index: 999;
+            opacity: 0; transform: translateY(10px);
+            transition: .3s ease;
+            pointer-events: none;
+        }
+        .qb-toast.show { opacity: 1; transform: translateY(0); }
 
-    .answers {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
+        /* ── Responsive ── */
+        @media (max-width: 1100px) {
+            .qb-app { grid-template-columns: 1fr; }
+            .qb-sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+            .qb-editor-grid { grid-template-columns: 1fr; }
+        }
 
-    .answer-tile {
-      background: var(--panel2);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: 0.2s ease;
-    }
-
-    .answer-tile:hover {
-      border-color: rgba(255,107,0,0.28);
-      transform: translateY(-1px);
-    }
-
-    .answer-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .answer-letter {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      background: var(--primary);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-    }
-
-    .correct-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--border);
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .correct-line input {
-      accent-color: var(--cta);
-    }
-
-    .editor-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 1100px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-      }
-
-      .editor-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 700px) {
-      .workspace {
-        padding: 18px;
-      }
-
-      .answers {
-        grid-template-columns: 1fr;
-      }
-
-      .workspace-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .editor-actions .btn {
-        width: 100%;
-      }
-    }
-  </style>
+        @media (max-width: 700px) {
+            .qb-workspace { padding: 16px; }
+            .answers-grid { grid-template-columns: 1fr; }
+            .qb-workspace-header { flex-direction: column; align-items: flex-start; }
+            .qb-editor-actions .qb-btn { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <h1>Quiz Builder</h1>
-        <p>Tworzenie quizu w układzie edytora</p>
-      </div>
 
-      <div class="side-block">
-        <h2>Ustawienia quizu</h2>
+<div class="qb-app">
 
-        <div class="field">
-          <label for="quizTitle1">Tytuł quizu</label>
-          <input id="quizTitle1" class="control" type="text" placeholder="np. Historia Polski">
+    {{-- ══════════════════ SIDEBAR ══════════════════ --}}
+    <aside class="qb-sidebar">
+
+        <div class="qb-brand">
+            <div class="qb-brand-icon">⚡</div>
+            <div class="qb-brand-text">Quiz<span>Builder</span></div>
         </div>
 
-        <div class="field">
-          <label for="quizCategory1">Kategoria</label>
-          <select id="quizCategory1" class="control">
-            <option value="">Wybierz kategorię</option>
-            <option>Historia</option>
-            <option>Geografia</option>
-            <option>Angielski</option>
-            <option>Sport</option>
-          </select>
-        </div>
+        {{-- Quiz settings --}}
+        <div class="side-block">
+            <h2>Ustawienia quizu</h2>
 
-        <div class="field">
-          <label for="quizDesc1">Opis</label>
-          <textarea id="quizDesc1" placeholder="Krótki opis quizu..."></textarea>
-        </div>
-      </div>
-
-      <div class="side-block">
-        <h2>Pytania</h2>
-
-        <div class="questions-list">
-          <div class="question-item active">
-            <div class="question-item_top">
-              <span class="question-number">Pytanie 1</span>
-              <span class="question-state">edytujesz</span>
+            <div class="qb-field">
+                <label>Tytuł quizu *</label>
+                <input id="quizTitle" class="qb-control" type="text"
+                       placeholder="np. Historia Polski" maxlength="150">
             </div>
-            <div class="question-name">Które wydarzenie rozpoczęło powstanie listopadowe?</div>
-          </div>
 
-          <div class="question-item">
-            <div class="question-item_top">
-              <span class="question-number">Pytanie 2</span>
-              <span class="question-state">robocze</span>
+            <div class="qb-field">
+                <label>Kategoria</label>
+                <select id="quizCategory" class="qb-select">
+                    <option value="">Bez kategorii</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
             </div>
-            <div class="question-name">Dodaj treść kolejnego pytania...</div>
-          </div>
 
-          <div class="question-item">
-            <div class="question-item_top">
-              <span class="question-number">Pytanie 3</span>
-              <span class="question-state">robocze</span>
+            <div class="qb-field">
+                <label>Opis</label>
+                <textarea id="quizDesc" class="qb-textarea"
+                          placeholder="Krótki opis quizu..."></textarea>
             </div>
-            <div class="question-name">Dodaj treść kolejnego pytania...</div>
-          </div>
+
+            <div class="qb-toggle-row">
+                <input type="checkbox" id="quizPremium">
+                <label for="quizPremium">Quiz Premium</label>
+            </div>
+            <div class="qb-toggle-row" style="margin-top:8px;">
+                <input type="checkbox" id="quizActive" checked>
+                <label for="quizActive">Aktywny (widoczny publicznie)</label>
+            </div>
         </div>
 
-        <div style="margin-top:14px;">
-          <button class="btn btn-primary btn-full" type="button">+ Dodaj pytanie</button>
+        {{-- Questions list --}}
+        <div class="side-block">
+            <h2>Pytania</h2>
+
+            <div class="questions-list" id="questionsList"></div>
+
+            <div style="margin-top:12px;">
+                <button class="qb-btn qb-btn-primary qb-btn-full" type="button" id="addQuestionBtn">
+                    ＋ Dodaj pytanie
+                </button>
+            </div>
+            <div style="margin-top:10px;">
+                <a href="{{ route('quizzes.index') }}" class="qb-btn qb-btn-secondary qb-btn-full">
+                    ← Wróć do quizów
+                </a>
+            </div>
         </div>
 
-        <div style="margin-top:14px;">
-          <a href="{{ url('/') }}" class="btn btn-secondary btn-full">← Wróć</a>
-        </div>
-      </div>
     </aside>
 
-    <main class="workspace">
-      <div class="workspace-header">
-        <div class="workspace-title">
-          <h2>Edytujesz: Pytanie 1</h2>
-          <p>Wypełnij treść, dodaj zdjęcie i ustaw poprawną odpowiedź.</p>
+    {{-- ══════════════════ WORKSPACE ══════════════════ --}}
+    <main class="qb-workspace">
+
+        <div class="qb-workspace-header">
+            <div class="qb-workspace-title">
+                <h2 id="workspaceTitle">Edytujesz: Pytanie 1</h2>
+                <p>Wypełnij treść, ustaw odpowiedzi i zaznacz poprawną.</p>
+            </div>
+            <button class="qb-btn qb-btn-primary" type="button" id="saveQuizBtn">
+                💾 Zapisz quiz
+            </button>
         </div>
 
-        <div>
-          <button class="btn btn-secondary" type="button">Podgląd quizu</button>
-        </div>
-      </div>
+        <section class="qb-editor">
 
-      <section class="editor">
-        <div class="editor-grid">
-          <div class="editor-block">
-            <h3>Treść pytania</h3>
+            <div class="qb-editor-grid">
 
-            <div class="field">
-              <label for="questionText1">Treść</label>
-              <textarea id="questionText1" placeholder="Wpisz pytanie..."></textarea>
+                {{-- Question text --}}
+                <div class="qb-editor-block">
+                    <h3>Treść pytania</h3>
+                    <div class="qb-field">
+                        <label>Pytanie *</label>
+                        <textarea id="questionText" class="qb-textarea"
+                                  placeholder="Wpisz treść pytania..."
+                                  style="min-height:110px;"></textarea>
+                    </div>
+                    <div class="qb-field" style="margin-top:4px;">
+                        <label>Typ pytania</label>
+                        <select id="questionType" class="qb-select">
+                            <option value="single_choice">Jedna poprawna odpowiedź</option>
+                            <option value="multiple_choice">Wiele poprawnych odpowiedzi</option>
+                            <option value="true_false">Prawda / Fałsz</option>
+                        </select>
+                    </div>
+                    <div class="small-note" style="margin-top:8px;">
+                        Krótka, jednoznaczna treść działa najlepiej.
+                    </div>
+                </div>
+
+                {{-- Image upload --}}
+                <div class="qb-editor-block">
+                    <h3>Zdjęcie (opcjonalne)</h3>
+                    <div class="upload-zone" id="uploadZone">
+                        <input type="file" id="imageInput"
+                               accept="image/jpeg,image/png,image/webp,image/gif"
+                               style="display:none;">
+                        <img id="previewImg" alt="Podgląd zdjęcia">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            Kliknij aby dodać zdjęcie do pytania.<br>
+                            <span style="font-size:11px;color:rgba(255,255,255,0.3);">
+                                JPG, PNG, WebP · max 5MB
+                            </span>
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+                            <button class="qb-btn qb-btn-secondary" type="button" id="chooseImgBtn">
+                                Wybierz plik
+                            </button>
+                            <button class="qb-btn qb-btn-danger" type="button" id="removeImgBtn">
+                                Usuń
+                            </button>
+                        </div>
+                        <div class="small-note" id="fileName">Nie wybrano pliku</div>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="small-note">
-              Dobrze działa krótka, jednoznaczna treść. Unikaj zbyt długich pytań.
-            </div>
-          </div>
-
-          <div class="editor-block">
-            <h3>Zdjęcie do pytania</h3>
-
-            <div class="upload-zone">
-              <input type="file" id="imageInput1" class="hidden-input" accept="image/*">
-              <img id="previewImg1" alt="Podgląd zdjęcia">
-              <div class="upload-placeholder" id="uploadPlaceholder1">
-                Dodaj zdjęcie, ilustrację albo mapę pomocniczą do pytania.
-              </div>
-              <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                <button class="btn btn-secondary" type="button" id="chooseBtn1">Wybierz plik</button>
-                <button class="btn btn-secondary" type="button" id="removeBtn1">Usuń</button>
-              </div>
-              <div class="small-note" id="fileName1">Nie wybrano pliku</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="editor-block">
-          <h3>Odpowiedzi</h3>
-
-          <div class="answers">
-            <div class="answer-tile">
-              <div class="answer-head">
-                <span class="answer-letter">A</span>
-                <label class="correct-line">
-                  <input type="radio" name="correctBuilder" value="A">
-                  Poprawna
-                </label>
-              </div>
-              <input class="control" type="text" placeholder="Odpowiedź A">
+            {{-- Answers --}}
+            <div class="qb-editor-block">
+                <h3>Odpowiedzi</h3>
+                <div class="answers-grid" id="answersGrid"></div>
             </div>
 
-            <div class="answer-tile">
-              <div class="answer-head">
-                <span class="answer-letter">B</span>
-                <label class="correct-line">
-                  <input type="radio" name="correctBuilder" value="B">
-                  Poprawna
-                </label>
-              </div>
-              <input class="control" type="text" placeholder="Odpowiedź B">
+            {{-- Actions --}}
+            <div class="qb-editor-actions">
+                <button class="qb-btn qb-btn-danger" type="button" id="deleteQuestionBtn">
+                    🗑 Usuń pytanie
+                </button>
+                <button class="qb-btn qb-btn-secondary" type="button" id="saveQuestionBtn">
+                    ✓ Zapisz pytanie
+                </button>
             </div>
 
-            <div class="answer-tile">
-              <div class="answer-head">
-                <span class="answer-letter">C</span>
-                <label class="correct-line">
-                  <input type="radio" name="correctBuilder" value="C">
-                  Poprawna
-                </label>
-              </div>
-              <input class="control" type="text" placeholder="Odpowiedź C">
-            </div>
-
-            <div class="answer-tile">
-              <div class="answer-head">
-                <span class="answer-letter">D</span>
-                <label class="correct-line">
-                  <input type="radio" name="correctBuilder" value="D">
-                  Poprawna
-                </label>
-              </div>
-              <input class="control" type="text" placeholder="Odpowiedź D">
-            </div>
-          </div>
-        </div>
-
-        <div class="editor-actions">
-          <button class="btn btn-secondary" type="button">Usuń pytanie</button>
-          <button class="btn btn-secondary" type="button">Zapisz pytanie</button>
-          <button class="btn btn-primary" type="button">Zapisz quiz</button>
-        </div>
-      </section>
+        </section>
     </main>
-  </div>
+</div>
 
-  <script>
-    const imageInput1 = document.getElementById('imageInput1');
-    const chooseBtn1 = document.getElementById('chooseBtn1');
-    const removeBtn1 = document.getElementById('removeBtn1');
-    const previewImg1 = document.getElementById('previewImg1');
-    const uploadPlaceholder1 = document.getElementById('uploadPlaceholder1');
-    const fileName1 = document.getElementById('fileName1');
+{{-- Toast notification --}}
+<div class="qb-toast" id="toast"></div>
 
-    chooseBtn1.addEventListener('click', () => imageInput1.click());
+{{-- Hidden submit form --}}
+<form id="submitForm" method="POST" action="{{ route('quizzes.store') }}" style="display:none;">
+    @csrf
+    <input type="hidden" name="title"          id="f_title">
+    <input type="hidden" name="description"    id="f_desc">
+    <input type="hidden" name="category_id"    id="f_category">
+    <input type="hidden" name="is_premium"     id="f_premium">
+    <input type="hidden" name="is_active"      id="f_active">
+    <input type="hidden" name="questions_json" id="f_questions">
+</form>
 
-    imageInput1.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+<script>
+// ─────────────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────────────
+let questions = [{
+    id: 1,
+    text: '',
+    type: 'single_choice',
+    answers: ['', '', '', ''],
+    correct: []
+}];
+let currentQ = 0;
+let questionImages = {}; // questionId -> File
 
-      fileName1.textContent = file.name;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        previewImg1.src = event.target.result;
-        previewImg1.style.display = 'block';
-        uploadPlaceholder1.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
+// ─────────────────────────────────────────────────────
+//  DOM REFS
+// ─────────────────────────────────────────────────────
+const questionsList     = document.getElementById('questionsList');
+const workspaceTitle    = document.getElementById('workspaceTitle');
+const questionText      = document.getElementById('questionText');
+const questionType      = document.getElementById('questionType');
+const answersGrid       = document.getElementById('answersGrid');
+const imageInput        = document.getElementById('imageInput');
+const previewImg        = document.getElementById('previewImg');
+const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+const fileName          = document.getElementById('fileName');
+const toast             = document.getElementById('toast');
+
+// ─────────────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, color = '#ff6b00') {
+    clearTimeout(toastTimer);
+    toast.textContent = msg;
+    toast.style.borderColor = color + '66';
+    toast.classList.add('show');
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────────────────
+//  RENDER SIDEBAR LIST
+// ─────────────────────────────────────────────────────
+function renderList() {
+    questionsList.innerHTML = '';
+    questions.forEach((q, i) => {
+        const saved = q.text.trim().length > 0 && q.correct.length > 0;
+        const div = document.createElement('div');
+        div.className = 'question-item' + (i === currentQ ? ' active' : '');
+        div.innerHTML = `
+            <div class="q-item-top">
+                <span class="q-number">Pytanie ${i + 1}</span>
+                <span class="q-state ${i === currentQ ? '' : saved ? 'saved' : ''}">
+                    ${i === currentQ ? 'edytujesz' : saved ? 'zapisane' : 'robocze'}
+                </span>
+            </div>
+            <div class="q-name">${q.text || 'Brak treści...'}</div>`;
+        div.addEventListener('click', () => {
+            saveCurrentToState();
+            switchTo(i);
+        });
+        questionsList.appendChild(div);
+    });
+}
+
+// ─────────────────────────────────────────────────────
+//  RENDER ANSWERS
+// ─────────────────────────────────────────────────────
+function renderAnswers() {
+    const q = questions[currentQ];
+    answersGrid.innerHTML = '';
+    const letters   = ['A', 'B', 'C', 'D'];
+    const count     = q.type === 'true_false' ? 2 : 4;
+    const tfLabels  = ['Prawda', 'Fałsz'];
+    const inputType = q.type === 'multiple_choice' ? 'checkbox' : 'radio';
+
+    for (let i = 0; i < count; i++) {
+        const isCorrect = q.correct.includes(i);
+        const tile = document.createElement('div');
+        tile.className = 'answer-tile' + (isCorrect ? ' correct-tile' : '');
+
+        tile.innerHTML = `
+            <div class="answer-head">
+                <span class="answer-letter">${letters[i]}</span>
+                <label class="correct-line">
+                    <input type="${inputType}" name="correctAnswer"
+                           value="${i}" ${isCorrect ? 'checked' : ''}>
+                    Poprawna
+                </label>
+            </div>
+            <input class="qb-control" type="text"
+                   placeholder="${q.type === 'true_false' ? tfLabels[i] : 'Odpowiedź ' + letters[i]}"
+                   value="${q.answers[i] || ''}"
+                   data-idx="${i}">`;
+
+        answersGrid.appendChild(tile);
+    }
+
+    // Correct answer change
+    answersGrid.querySelectorAll('input[name=correctAnswer]').forEach(inp => {
+        inp.addEventListener('change', () => {
+            if (q.type === 'multiple_choice') {
+                q.correct = [...answersGrid.querySelectorAll('input[name=correctAnswer]:checked')]
+                    .map(x => parseInt(x.value));
+            } else {
+                q.correct = [parseInt(inp.value)];
+            }
+            renderAnswers();
+        });
     });
 
-    removeBtn1.addEventListener('click', () => {
-      imageInput1.value = '';
-      previewImg1.src = '';
-      previewImg1.style.display = 'none';
-      uploadPlaceholder1.style.display = 'block';
-      fileName1.textContent = 'Nie wybrano pliku';
+    // Answer text change
+    answersGrid.querySelectorAll('input[type=text]').forEach(inp => {
+        inp.addEventListener('input', () => {
+            q.answers[parseInt(inp.dataset.idx)] = inp.value;
+        });
     });
-  </script>
+}
+
+// ─────────────────────────────────────────────────────
+//  SWITCH TO QUESTION
+// ─────────────────────────────────────────────────────
+function switchTo(i) {
+    currentQ = i;
+    const q  = questions[i];
+
+    questionText.value = q.text;
+    questionType.value = q.type;
+    workspaceTitle.textContent = `Edytujesz: Pytanie ${i + 1}`;
+
+    // Image preview
+    if (questionImages[q.id]) {
+        const url = URL.createObjectURL(questionImages[q.id]);
+        previewImg.src = url;
+        previewImg.style.display    = 'block';
+        uploadPlaceholder.style.display = 'none';
+        fileName.textContent = questionImages[q.id].name;
+    } else {
+        previewImg.src = '';
+        previewImg.style.display    = 'none';
+        uploadPlaceholder.style.display = 'block';
+        fileName.textContent = 'Nie wybrano pliku';
+    }
+
+    renderAnswers();
+    renderList();
+}
+
+// ─────────────────────────────────────────────────────
+//  SAVE CURRENT STATE
+// ─────────────────────────────────────────────────────
+function saveCurrentToState() {
+    const q = questions[currentQ];
+    q.text = questionText.value.trim();
+    q.type = questionType.value;
+    answersGrid.querySelectorAll('input[type=text]').forEach(inp => {
+        q.answers[parseInt(inp.dataset.idx)] = inp.value;
+    });
+}
+
+// ─────────────────────────────────────────────────────
+//  ADD QUESTION
+// ─────────────────────────────────────────────────────
+document.getElementById('addQuestionBtn').addEventListener('click', () => {
+    saveCurrentToState();
+    questions.push({
+        id: Date.now(),
+        text: '',
+        type: 'single_choice',
+        answers: ['', '', '', ''],
+        correct: []
+    });
+    switchTo(questions.length - 1);
+    showToast('Dodano nowe pytanie');
+});
+
+// ─────────────────────────────────────────────────────
+//  DELETE QUESTION
+// ─────────────────────────────────────────────────────
+document.getElementById('deleteQuestionBtn').addEventListener('click', () => {
+    if (questions.length === 1) {
+        showToast('Quiz musi mieć co najmniej 1 pytanie', '#f87171');
+        return;
+    }
+    delete questionImages[questions[currentQ].id];
+    questions.splice(currentQ, 1);
+    switchTo(Math.min(currentQ, questions.length - 1));
+    showToast('Pytanie usunięte');
+});
+
+// ─────────────────────────────────────────────────────
+//  SAVE QUESTION (validate)
+// ─────────────────────────────────────────────────────
+document.getElementById('saveQuestionBtn').addEventListener('click', () => {
+    saveCurrentToState();
+    const q = questions[currentQ];
+    if (!q.text) {
+        showToast('Wpisz treść pytania!', '#f87171');
+        return;
+    }
+    if (q.correct.length === 0) {
+        showToast('Zaznacz poprawną odpowiedź!', '#f87171');
+        return;
+    }
+    renderList();
+    showToast('✓ Pytanie zapisane', '#4ade80');
+});
+
+// ─────────────────────────────────────────────────────
+//  IMAGE UPLOAD
+// ─────────────────────────────────────────────────────
+document.getElementById('chooseImgBtn').addEventListener('click', () => imageInput.click());
+
+document.getElementById('uploadZone').addEventListener('click', (e) => {
+    if (['uploadZone','uploadPlaceholder'].includes(e.target.id)) imageInput.click();
+});
+
+imageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 5MB limit
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('Zdjęcie może mieć max 5MB!', '#f87171');
+        imageInput.value = '';
+        return;
+    }
+
+    questionImages[questions[currentQ].id] = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        previewImg.src = ev.target.result;
+        previewImg.style.display    = 'block';
+        uploadPlaceholder.style.display = 'none';
+        fileName.textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('removeImgBtn').addEventListener('click', () => {
+    delete questionImages[questions[currentQ].id];
+    imageInput.value = '';
+    previewImg.src = '';
+    previewImg.style.display    = 'none';
+    uploadPlaceholder.style.display = 'block';
+    fileName.textContent = 'Nie wybrano pliku';
+});
+
+// ─────────────────────────────────────────────────────
+//  QUESTION TYPE CHANGE
+// ─────────────────────────────────────────────────────
+questionType.addEventListener('change', () => {
+    questions[currentQ].type    = questionType.value;
+    questions[currentQ].correct = [];
+    if (questionType.value === 'true_false') {
+        questions[currentQ].answers = ['Prawda', 'Fałsz', '', ''];
+    }
+    renderAnswers();
+});
+
+// ─────────────────────────────────────────────────────
+//  SAVE QUIZ (submit)
+// ─────────────────────────────────────────────────────
+document.getElementById('saveQuizBtn').addEventListener('click', () => {
+    saveCurrentToState();
+
+    const title = document.getElementById('quizTitle').value.trim();
+    if (!title) {
+        showToast('Podaj tytuł quizu!', '#f87171');
+        return;
+    }
+
+    const incomplete = questions.filter(q => !q.text || q.correct.length === 0);
+    if (incomplete.length > 0) {
+        showToast(`${incomplete.length} pytanie(a) nie są kompletne!`, '#f87171');
+        return;
+    }
+
+    // Fill hidden form
+    document.getElementById('f_title').value     = title;
+    document.getElementById('f_desc').value      = document.getElementById('quizDesc').value;
+    document.getElementById('f_category').value  = document.getElementById('quizCategory').value;
+    document.getElementById('f_premium').value   = document.getElementById('quizPremium').checked ? '1' : '0';
+    document.getElementById('f_active').value    = document.getElementById('quizActive').checked  ? '1' : '0';
+    document.getElementById('f_questions').value = JSON.stringify(questions);
+
+    document.getElementById('submitForm').submit();
+});
+
+// ─────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────
+switchTo(0);
+</script>
+
 </body>
 </html>

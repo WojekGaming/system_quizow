@@ -1,107 +1,314 @@
-<!doctype html>
-<html lang="pl">
-<head>
-  <meta charset="utf-8">
-  <title>Admin Panel</title>
+<x-app-layout>
+    <x-slot name="title">Panel Admina</x-slot>
 
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+    <div class="dash-container" style="max-width:1300px;">
 
-<body class="quiz-play-body">
-
-@php
-$quizzes = [
-  [
-    'title' => 'Powstanie listopadowe',
-    'author' => 'admin',
-    'category' => 'Historia',
-    'questions' => 12,
-    'rating' => 5.1,
-    'premium' => true,
-  ],
-  [
-    'title' => 'Stolice świata',
-    'author' => 'Ola123',
-    'category' => 'Geografia',
-    'questions' => 20,
-    'rating' => 5.8,
-    'premium' => false,
-  ],
-  [
-    'title' => 'Present Perfect',
-    'author' => 'teacher_pro',
-    'category' => 'Angielski',
-    'questions' => 15,
-    'rating' => 4.7,
-    'premium' => false,
-  ],
-];
-@endphp
-
-<div class="admin-container">
-
-  <h1 class="admin-title">Panel administratora</h1>
-
-  <!-- FILTRY -->
-  <div class="admin-filters" id="adminFilters">
-
-  <input class="control" id="adminSearch" placeholder="Szukaj quizu...">
-
-  <select class="control" id="adminCategory">
-    <option value="">Kategoria</option>
-    <option value="Historia">Historia</option>
-    <option value="Geografia">Geografia</option>
-    <option value="Angielski">Angielski</option>
-  </select>
-
-  <select class="control" id="adminPremium">
-    <option value="">Premium</option>
-    <option value="Tak">Tak</option>
-    <option value="Nie">Nie</option>
-  </select>
-
-  <button class="btn btn-secondary" type="button" id="adminResetFilters">
-    Reset
-  </button>
-
-</div>
-
-  <!-- LISTA -->
-  <div class="admin-list">
-
-    @foreach($quizzes as $quiz)
-      <div class="admin-card">
-
-        <div class="admin-card-top">
-          <div>
-            <div class="admin-title-small">{{ $quiz['title'] }}</div>
-            <div class="admin-meta">
-              {{ $quiz['category'] }} • {{ $quiz['author'] }}
+        <div class="dash-welcome">
+            <div>
+                <h1 class="dash-welcome__title">Panel <span>Admina</span> 🛡</h1>
+                <p class="dash-welcome__sub">Zarządzaj quizami, zgłoszeniami i użytkownikami</p>
             </div>
-          </div>
-
-          @if($quiz['premium'])
-            <span class="badge premium">Premium</span>
-          @endif
         </div>
 
-        <div class="admin-card-bottom">
-          <span>{{ $quiz['questions'] }} pytań</span>
-          <span>⭐ {{ $quiz['rating'] }}</span>
+        @if(session('success'))
+            <div class="dash-alert dash-alert--success" style="margin-bottom:1.2rem;">✓ {{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="dash-alert dash-alert--error" style="margin-bottom:1.2rem;">✕ {{ session('error') }}</div>
+        @endif
+
+        {{-- Tabs --}}
+        <div style="display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;">
+            <a href="{{ route('admin.quizzes') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;
+               {{ $tab==='quizzes' ? 'background:linear-gradient(135deg,#ff6b00,#ff8c33);color:#fff;box-shadow:0 4px 14px rgba(255,107,0,.3);' : 'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);' }}">
+                📋 Quizy
+            </a>
+            <a href="{{ route('admin.reports') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;
+               {{ $tab==='reports' ? 'background:linear-gradient(135deg,#ff6b00,#ff8c33);color:#fff;box-shadow:0 4px 14px rgba(255,107,0,.3);' : 'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);' }}">
+                🚨 Zgłoszenia
+            </a>
+            <a href="{{ route('admin.users') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;
+               {{ in_array($tab,['users','user_quizzes']) ? 'background:linear-gradient(135deg,#ff6b00,#ff8c33);color:#fff;box-shadow:0 4px 14px rgba(255,107,0,.3);' : 'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);' }}">
+                👥 Użytkownicy
+            </a>
         </div>
 
-        <div class="admin-actions">
-          <button class="btn btn-secondary">Podgląd</button>
-          <button class="btn btn-secondary">Ukryj</button>
-          <button class="btn btn-danger">Usuń</button>
-        </div>
+        {{-- ══════════════ TAB: QUIZZES ══════════════ --}}
+        @if($tab === 'quizzes')
 
-      </div>
-    @endforeach
+            <div class="dash-panel" style="margin-bottom:1.2rem;">
+                <form method="GET" action="{{ route('admin.quizzes') }}">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;align-items:end;">
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Tytuł / szukaj</label>
+                            <input class="auth-input" type="text" name="search" value="{{ request('search') }}" placeholder="Tytuł quizu...">
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Kategoria</label>
+                            <select class="auth-input" name="category" style="cursor:pointer;background:#1a1a1a;">
+                                <option value="">Wszystkie</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}" {{ request('category')==$cat->id?'selected':'' }}>{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Premium</label>
+                            <select class="auth-input" name="premium" style="cursor:pointer;background:#1a1a1a;">
+                                <option value="">Wszystkie</option>
+                                <option value="1" {{ request('premium')==='1'?'selected':'' }}>Tak</option>
+                                <option value="0" {{ request('premium')==='0'?'selected':'' }}>Nie</option>
+                            </select>
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Min. pytań</label>
+                            <input class="auth-input" type="number" name="min_questions" value="{{ request('min_questions') }}" placeholder="np. 5" min="0">
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Min. ocena</label>
+                            <input class="auth-input" type="number" name="min_rating" value="{{ request('min_rating') }}" placeholder="np. 3.5" step="0.1" min="0" max="5">
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Data od</label>
+                            <input class="auth-input" type="date" name="date_from" value="{{ request('date_from') }}">
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Data do</label>
+                            <input class="auth-input" type="date" name="date_to" value="{{ request('date_to') }}">
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Użytkownik</label>
+                            <input class="auth-input" type="text" name="user" value="{{ request('user') }}" placeholder="Nazwa...">
+                        </div>
+                        <div style="display:flex;gap:7px;align-items:flex-end;">
+                            <button type="submit" class="dash-cta-btn" style="padding:10px 16px;font-size:13px;">Filtruj</button>
+                            @if(request()->hasAny(['search','category','premium','min_questions','min_rating','date_from','date_to','user']))
+                                <a href="{{ route('admin.quizzes') }}" style="padding:10px 12px;border:1px solid rgba(255,255,255,.1);border-radius:9px;color:rgba(255,255,255,.5);text-decoration:none;font-size:13px;">✕</a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
 
-  </div>
+            <div class="dash-panel">
+                <div class="dash-panel__head">
+                    <h2 class="dash-panel__title">Quizy ({{ $quizzes->total() }})</h2>
+                </div>
 
-</div>
+                @forelse($quizzes as $quiz)
+                    <div class="dash-quiz-item" style="padding:14px 0;">
+                        <div class="dash-quiz-item__info" style="flex:1;">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <div class="dash-quiz-item__title">{{ $quiz->title }}</div>
+                                @if($quiz->is_premium)<span class="dash-badge dash-badge--premium">Premium</span>@endif
+                            </div>
+                            <div class="dash-quiz-item__meta" style="margin-top:4px;">
+                                👤 {{ $quiz->user->name ?? '—' }}
+                                · 📋 {{ $quiz->questions_count }} pytań
+                                · ▶ {{ $quiz->attempts_count }} podejść
+                                @if($quiz->category) · 🏷 {{ $quiz->category->name }} @endif
+                                @if($quiz->average_rating > 0) · ⭐ {{ number_format($quiz->average_rating,1) }} @endif
+                                · 📅 {{ $quiz->created_at->format('d.m.Y') }}
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ route('admin.quiz.delete', $quiz) }}"
+                              onsubmit="return confirm('Na pewno usunąć quiz: {{ addslashes($quiz->title) }}?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="dash-icon-btn" title="Usuń" style="border-color:rgba(220,50,50,.2);">🗑</button>
+                        </form>
+                    </div>
+                @empty
+                    <div class="dash-empty"><div class="dash-empty__icon">📋</div><p>Brak quizów pasujących do filtrów.</p></div>
+                @endforelse
 
-</body>
-</html>
+                <div style="margin-top:1rem;">{{ $quizzes->links() }}</div>
+            </div>
+
+        @endif
+
+        {{-- ══════════════ TAB: REPORTS ══════════════ --}}
+        @if($tab === 'reports')
+
+            <div class="dash-panel" style="margin-bottom:1.2rem;">
+                <form method="GET" action="{{ route('admin.reports') }}">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;align-items:end;">
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Szukaj quizu</label>
+                            <input class="auth-input" type="text" name="search" value="{{ request('search') }}" placeholder="Tytuł quizu...">
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Status</label>
+                            <select class="auth-input" name="status" style="cursor:pointer;background:#1a1a1a;">
+                                <option value="">Wszystkie</option>
+                                <option value="new"      {{ request('status')==='new'      ?'selected':'' }}>Nowe</option>
+                                <option value="reviewed" {{ request('status')==='reviewed' ?'selected':'' }}>Przeglądane</option>
+                                <option value="resolved" {{ request('status')==='resolved' ?'selected':'' }}>Rozwiązane</option>
+                            </select>
+                        </div>
+                        <div class="auth-field" style="margin:0">
+                            <label class="auth-label">Kategoria</label>
+                            <select class="auth-input" name="category" style="cursor:pointer;background:#1a1a1a;">
+                                <option value="">Wszystkie</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}" {{ request('category')==$cat->id?'selected':'' }}>{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div style="display:flex;gap:7px;align-items:flex-end;">
+                            <button type="submit" class="dash-cta-btn" style="padding:10px 16px;font-size:13px;">Filtruj</button>
+                            @if(request()->hasAny(['search','status','category']))
+                                <a href="{{ route('admin.reports') }}" style="padding:10px 12px;border:1px solid rgba(255,255,255,.1);border-radius:9px;color:rgba(255,255,255,.5);text-decoration:none;font-size:13px;">✕</a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="dash-panel">
+                <div class="dash-panel__head">
+                    <h2 class="dash-panel__title">Zgłoszenia ({{ $reports->total() }})</h2>
+                </div>
+
+                @forelse($reports as $report)
+                    <div class="dash-quiz-item" style="padding:14px 0;align-items:flex-start;">
+                        <div style="flex:1;">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <div class="dash-quiz-item__title">{{ $report->quiz->title ?? 'Quiz usunięty' }}</div>
+                                <span class="dash-badge" style="
+                                    {{ $report->status==='new'      ? 'background:rgba(242,165,65,.1);color:#f2a541;border:1px solid rgba(242,165,65,.2);' : '' }}
+                                    {{ $report->status==='resolved' ? 'background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.2);' : '' }}
+                                    {{ $report->status==='reviewed' ? 'background:rgba(93,188,216,.1);color:#5bc8d8;border:1px solid rgba(93,188,216,.2);' : '' }}
+                                ">{{ ucfirst($report->status) }}</span>
+                            </div>
+                            <div class="dash-quiz-item__meta" style="margin-top:4px;">
+                                👤 {{ $report->reportedBy->name ?? '—' }}
+                                · 📅 {{ $report->created_at->format('d.m.Y H:i') }}
+                                @if($report->reason) · 💬 {{ Str::limit($report->reason, 60) }} @endif
+                                @if($report->quiz?->category) · 🏷 {{ $report->quiz->category->name }} @endif
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:7px;flex-shrink:0;">
+                            @if($report->status !== 'resolved')
+                                <form method="POST" action="{{ route('admin.report.resolve', $report) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="dash-icon-btn" title="Rozwiąż" style="border-color:rgba(74,222,128,.2);">✓</button>
+                                </form>
+                            @endif
+                            @if($report->quiz && !$report->quiz->trashed())
+                                <form method="POST" action="{{ route('admin.quiz.delete', $report->quiz) }}"
+                                      onsubmit="return confirm('Usunąć quiz?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="dash-icon-btn" title="Usuń quiz" style="border-color:rgba(220,50,50,.2);">🗑</button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="dash-empty"><div class="dash-empty__icon">🚨</div><p>Brak zgłoszeń.</p></div>
+                @endforelse
+
+                <div style="margin-top:1rem;">{{ $reports->links() }}</div>
+            </div>
+
+        @endif
+
+        {{-- ══════════════ TAB: USERS ══════════════ --}}
+        @if($tab === 'users')
+
+            <div class="dash-panel" style="margin-bottom:1.2rem;">
+                <form method="GET" action="{{ route('admin.users') }}">
+                    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+                        <div class="auth-field" style="margin:0;flex:1;min-width:200px;">
+                            <label class="auth-label">Szukaj użytkownika</label>
+                            <input class="auth-input" type="text" name="search" value="{{ request('search') }}" placeholder="Nazwa lub email...">
+                        </div>
+                        <button type="submit" class="dash-cta-btn" style="padding:10px 16px;font-size:13px;">Szukaj</button>
+                        @if(request('search'))
+                            <a href="{{ route('admin.users') }}" style="padding:10px 12px;border:1px solid rgba(255,255,255,.1);border-radius:9px;color:rgba(255,255,255,.5);text-decoration:none;font-size:13px;">✕</a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
+            <div class="dash-panel">
+                <div class="dash-panel__head">
+                    <h2 class="dash-panel__title">Użytkownicy z usuniętymi quizami ({{ $users->total() }})</h2>
+                </div>
+
+                @forelse($users as $u)
+                    <div class="dash-quiz-item" style="padding:14px 0;">
+                        <div class="dash-friend-item__avatar">{{ strtoupper(substr($u->name,0,1)) }}</div>
+                        <div style="flex:1;margin-left:10px;">
+                            <div class="dash-quiz-item__title">{{ $u->name }}</div>
+                            <div class="dash-quiz-item__meta">
+                                {{ $u->email }}
+                                · 🗑 {{ $u->deleted_quizzes_count }} usuniętych quizów
+                                @if($u->isBanned()) · <span style="color:#f87171;">🔒 ban do {{ $u->banned_until->format('d.m.Y') }}</span> @endif
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
+                            <a href="{{ route('admin.user.quizzes', $u) }}" class="dash-icon-btn" title="Pokaż quizy">👁</a>
+
+                            <form method="POST" action="{{ route('admin.user.ban', $u) }}"
+                                  style="display:flex;gap:5px;align-items:center;"
+                                  onsubmit="return confirm('Zbanować {{ addslashes($u->name) }}?')">
+                                @csrf @method('PATCH')
+                                <input type="number" name="days" min="1" max="3650" placeholder="dni"
+                                       class="auth-input" style="width:70px;padding:7px 9px;font-size:12px;">
+                                <button type="submit" class="dash-icon-btn" title="Banuj" style="border-color:rgba(242,165,65,.25);">🔒</button>
+                            </form>
+
+                            @if($u->isBanned())
+                                <form method="POST" action="{{ route('admin.user.unban', $u) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="dash-icon-btn" title="Zdejmij ban" style="border-color:rgba(74,222,128,.2);">🔓</button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="dash-empty"><div class="dash-empty__icon">👥</div><p>Brak użytkowników z usuniętymi quizami.</p></div>
+                @endforelse
+
+                <div style="margin-top:1rem;">{{ $users->links() }}</div>
+            </div>
+
+        @endif
+
+        {{-- ══════════════ TAB: USER QUIZZES ══════════════ --}}
+        @if($tab === 'user_quizzes')
+
+            <div style="margin-bottom:1rem;">
+                <a href="{{ route('admin.users') }}" class="auth-btn-link">← Wróć do użytkowników</a>
+            </div>
+
+            <div class="dash-panel">
+                <div class="dash-panel__head">
+                    <h2 class="dash-panel__title">Usunięte quizy: {{ $user->name }}</h2>
+                    <span style="font-size:13px;color:rgba(255,255,255,.35);">{{ $quizzes->count() }} quizów</span>
+                </div>
+
+                @forelse($quizzes as $quiz)
+                    <div class="dash-quiz-item" style="padding:14px 0;">
+                        <div class="dash-quiz-item__info">
+                            <div class="dash-quiz-item__title">{{ $quiz->title }}</div>
+                            <div class="dash-quiz-item__meta">
+                                📋 {{ $quiz->questions_count }} pytań
+                                @if($quiz->category) · 🏷 {{ $quiz->category->name }} @endif
+                                · 🗑 usunięty {{ $quiz->deleted_at->format('d.m.Y H:i') }}
+                                @if($quiz->deleted_by_admin_at) · <span style="color:#f87171;">przez admina</span> @endif
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="dash-empty"><div class="dash-empty__icon">📋</div><p>Brak usuniętych quizów.</p></div>
+                @endforelse
+            </div>
+
+        @endif
+
+    </div>
+</x-app-layout>

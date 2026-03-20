@@ -1,25 +1,57 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="auth-icon-badge">🔑</div>
+
+    <h1 class="auth-title">{{ __('Reset password') }}</h1>
+    <p class="auth-subtitle">
+        {{ __('Enter your email and we\'ll send you a link to reset your password.') }}
+    </p>
+
+    {{-- Session Status --}}
+    <x-auth-session-status class="auth-alert auth-alert--success" :status="session('status')" />
+
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="auth-alert auth-alert--error">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        {{-- Email --}}
+        <div class="auth-field">
+            <x-input-label for="email" :value="__('Email')" class="auth-label" />
+            <x-text-input
+                id="email"
+                class="auth-input"
+                type="email"
+                name="email"
+                :value="old('email')"
+                required
+                autofocus
+                autocomplete="username"
+                placeholder="you@example.com"
+            />
+            <x-input-error :messages="$errors->get('email')" class="auth-error" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
+        {{-- Submit --}}
+        <div class="mt-6">
+            <x-primary-button class="auth-btn-primary auth-btn-primary--full">
+                {{ __('Send reset link') }}
             </x-primary-button>
         </div>
     </form>
+
+    <div class="auth-divider"></div>
+
+    <p class="auth-footer">
+        {{ __('Remember your password?') }}
+        <a href="{{ route('login') }}" class="auth-link">{{ __('Back to login') }}</a>
+    </p>
+
 </x-guest-layout>
