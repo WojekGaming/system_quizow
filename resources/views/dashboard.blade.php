@@ -3,7 +3,6 @@
 
     <div class="dash-container">
 
-        {{-- Welcome header --}}
         <div class="dash-welcome">
             <div>
                 <h1 class="dash-welcome__title">
@@ -16,7 +15,6 @@
             </a>
         </div>
 
-        {{-- Stats row --}}
         <div class="dash-stats">
             <div class="dash-stat">
                 <div class="dash-stat__icon">🎯</div>
@@ -40,10 +38,8 @@
             </div>
         </div>
 
-        {{-- Main grid --}}
         <div class="dash-grid">
 
-            {{-- My quizzes --}}
             <div class="dash-panel">
                 <div class="dash-panel__head">
                     <h2 class="dash-panel__title">Moje quizy</h2>
@@ -56,20 +52,14 @@
                             <div class="dash-quiz-item__title">{{ $quiz->title }}</div>
                             <div class="dash-quiz-item__meta">
                                 {{ $quiz->questions_count }} pytań
-                                @if($quiz->category)
-                                    · {{ $quiz->category->name }}
-                                @endif
-                                @if($quiz->is_premium)
-                                    · <span class="dash-badge dash-badge--premium">Premium</span>
-                                @endif
-                                @if(!$quiz->is_active)
-                                    · <span class="dash-badge dash-badge--inactive">Nieaktywny</span>
-                                @endif
+                                @if($quiz->category) · {{ $quiz->category->name }} @endif
+                                @if($quiz->is_premium) · <span class="dash-badge dash-badge--premium">Premium</span> @endif
+                                @if(!$quiz->is_active) · <span class="dash-badge dash-badge--inactive">Nieaktywny</span> @endif
                             </div>
                         </div>
                         <div class="dash-quiz-item__actions">
                             <a href="{{ route('quizzes.edit', $quiz) }}" class="dash-icon-btn" title="Edytuj">✏️</a>
-                            <a href="{{ url('/quiz-play') }}" class="dash-icon-btn" title="Zagraj">▶️</a>
+                            <a href="{{ route('quiz.show', $quiz) }}" class="dash-icon-btn" title="Zagraj">▶️</a>
                         </div>
                     </div>
                 @empty
@@ -81,10 +71,8 @@
                 @endforelse
             </div>
 
-            {{-- Right column --}}
             <div class="dash-side">
 
-                {{-- Recent attempts --}}
                 <div class="dash-panel">
                     <div class="dash-panel__head">
                         <h2 class="dash-panel__title">Ostatnie quizy</h2>
@@ -96,10 +84,7 @@
                                 <div class="dash-attempt-item__title">{{ $attempt->quiz->title ?? 'Quiz usunięty' }}</div>
                                 <div class="dash-attempt-item__date">{{ $attempt->finished_at?->diffForHumans() }}</div>
                             </div>
-                            <div class="dash-attempt-item__score
-                                {{ $attempt->max_points > 0 && ($attempt->score_points / $attempt->max_points) >= 0.7
-                                    ? 'dash-attempt-item__score--good'
-                                    : 'dash-attempt-item__score--bad' }}">
+                            <div class="dash-attempt-item__score {{ $attempt->max_points > 0 && ($attempt->score_points / $attempt->max_points) >= 0.7 ? 'dash-attempt-item__score--good' : 'dash-attempt-item__score--bad' }}">
                                 {{ $attempt->score_points }}/{{ $attempt->max_points }}
                             </div>
                         </div>
@@ -111,20 +96,16 @@
                     @endforelse
                 </div>
 
-                {{-- Friends --}}
                 <div class="dash-panel">
                     <div class="dash-panel__head">
                         <h2 class="dash-panel__title">Znajomi</h2>
                     </div>
 
-                    {{-- Pending requests --}}
                     @if($pendingRequests->count() > 0)
                         <div class="dash-friend-section-label">Zaproszenia ({{ $pendingRequests->count() }})</div>
                         @foreach($pendingRequests as $req)
                             <div class="dash-friend-item">
-                                <div class="dash-friend-item__avatar">
-                                    {{ strtoupper(substr($req->requester->name, 0, 1)) }}
-                                </div>
+                                <div class="dash-friend-item__avatar">{{ strtoupper(substr($req->requester->name, 0, 1)) }}</div>
                                 <div class="dash-friend-item__name">{{ $req->requester->name }}</div>
                                 <div class="dash-friend-item__actions">
                                     <form method="POST" action="#" style="display:inline">
@@ -141,16 +122,11 @@
                         <div class="dash-panel__divider"></div>
                     @endif
 
-                    {{-- Friends list --}}
                     @forelse($friends as $friend)
                         <div class="dash-friend-item">
-                            <div class="dash-friend-item__avatar">
-                                {{ strtoupper(substr($friend->name, 0, 1)) }}
-                            </div>
+                            <div class="dash-friend-item__avatar">{{ strtoupper(substr($friend->name, 0, 1)) }}</div>
                             <div class="dash-friend-item__name">{{ $friend->name }}</div>
-                            <div class="dash-friend-item__quizzes">
-                                {{ $friend->quizzes_count ?? 0 }} quizów
-                            </div>
+                            <div class="dash-friend-item__quizzes">{{ $friend->quizzes_count ?? 0 }} quizów</div>
                         </div>
                     @empty
                         <div class="dash-empty">

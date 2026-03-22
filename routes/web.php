@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuizPlayController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\WelcomeController;
@@ -12,9 +13,8 @@ use App\Http\Controllers\AdminController;
 // ── Public ────────────────────────────────────────────────
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
-Route::get('/quiz-play', function () {
-    return view('quiz-play');
-})->name('quiz.play');
+Route::get('/quiz/{quiz}',         [QuizPlayController::class, 'show'])->name('quiz.show');
+Route::post('/quiz/{quiz}/submit', [QuizPlayController::class, 'submit'])->name('quiz.submit');
 
 // ── Banned page ───────────────────────────────────────────
 Route::get('/banned', function () {
@@ -27,7 +27,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports',     [AdminController::class, 'reports'])->name('reports');
     Route::get('/users',       [AdminController::class, 'users'])->name('users');
     Route::get('/users/{user}/quizzes', [AdminController::class, 'userQuizzes'])->name('user.quizzes');
-
     Route::delete('/quizzes/{quiz}',           [AdminController::class, 'deleteQuiz'])->name('quiz.delete');
     Route::patch('/reports/{report}/resolve',  [AdminController::class, 'resolveReport'])->name('report.resolve');
     Route::patch('/users/{user}/ban',          [AdminController::class, 'banUser'])->name('user.ban');
@@ -36,7 +35,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // ── Auth + verified ───────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
-
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

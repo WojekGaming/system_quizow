@@ -654,7 +654,7 @@
                         <div class="author-av">{{ strtoupper(substr($quiz->user->name ?? 'A',0,1)) }}</div>
                         <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
                     </div>
-                    <a href="{{ url('/quiz-play') }}" class="qcard__play">Zagraj →</a>
+                    <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj →</a>
                 </div>
             </div>
         @empty
