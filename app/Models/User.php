@@ -6,10 +6,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -17,6 +18,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'premium_until',
         'banned_until',
+        'avatar_path',
+        'is_admin',
     ];
 
     protected $hidden = [
@@ -32,6 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'premium_until'     => 'datetime',
             'banned_until'      => 'datetime',
             'deleted_at'        => 'datetime',
+            'is_admin'          => 'boolean',
         ];
     }
 
