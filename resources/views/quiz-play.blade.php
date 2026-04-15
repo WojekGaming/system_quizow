@@ -89,7 +89,7 @@
             @if($i > 0)
                 <button type="button" onclick="goTo({{ $i - 1 }})">← Poprzednie</button>
             @else
-                <a href="{{ url('/') }}">← ALLAHUAKBAR</a>
+                <a href="{{ url('/') }}">← Wyjdź</a>
             @endif
 
             @if($i < $total - 1)
