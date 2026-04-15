@@ -105,15 +105,15 @@
 </form>
 
 <!-- 🚨 REPORT QUIZ (POZA FORMULARZEM!) -->
-<div style="margin-top:20px;text-align:right;">
-    <form action="{{ route('quiz.report', $quiz->id) }}" method="POST">
-        @csrf
-        <button type="submit"
-            style="background:none;border:1px solid rgba(255,0,0,0.4);color:rgba(255,100,100,0.9);padding:6px 10px;border-radius:8px;">
-            🚨 Zgłoś quiz
-        </button>
-    </form>
-</div>
+    <div style="margin-top:20px;text-align:right;">
+        <form action="{{ route('quiz.report', $quiz->id) }}" method="POST">
+            @csrf
+            <button type="submit"
+                style="background:none;border:1px solid rgba(255,0,0,0.4);color:rgba(255,100,100,0.9);padding:6px 10px;border-radius:8px;">
+                🚨 Zgłoś quiz
+            </button>
+        </form>
+    </div>
 
 </div>
 
