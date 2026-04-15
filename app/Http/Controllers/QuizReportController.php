@@ -7,15 +7,15 @@ use App\Models\QuizReport;
 
 class QuizReportController extends Controller
 {
-    public function store(Request $request, $quizId)
+    public function store(Request $request, $id)
     {
         QuizReport::create([
-            'quiz_id' => $quizId,
+            'quiz_id' => $id,
             'reported_by_user_id' => auth()->id(),
-            'reason' => $request->reason,
+            'reason' => $request->reason ?? null,
             'status' => 'new'
         ]);
 
-        return back()->with('success', 'Quiz został zgłoszony');
+        return back()->with('success', 'Zgłoszono quiz');
     }
 }
