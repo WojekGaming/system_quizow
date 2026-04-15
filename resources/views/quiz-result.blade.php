@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="pl">
 <head>
+    <h1 style="color:red;">TEST VIEW</h1>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Wynik — {{ $quiz->title }}</title>
