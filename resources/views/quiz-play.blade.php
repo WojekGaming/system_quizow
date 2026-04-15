@@ -18,104 +18,80 @@
 
 <form method="POST" action="{{ route('quiz.submit', $quiz) }}" id="quizForm" style="width:min(720px,100%);">
 @csrf
+
 <div id="answersContainer"></div>
 
-@php $questions = $quiz->questions; $total = $questions->count(); @endphp
+@php
+    $questions = $quiz->questions;
+    $total = $questions->count();
+@endphp
 
 @foreach($questions as $i => $question)
+
 @php
     $answers = $question->answers;
     if (is_string($answers)) $answers = json_decode($answers, true);
     $answers = $answers ?? [];
     $type = $question->question_type;
+
     if ($type === 'true_false') {
         $answers = array_slice($answers, 0, 2);
         if (empty($answers[0])) $answers[0] = 'Prawda';
         if (empty($answers[1])) $answers[1] = 'Fałsz';
     }
+
     $letters = ['A','B','C','D'];
 @endphp
 
 <div class="question-slide" id="slide-{{ $i }}" style="{{ $i > 0 ? 'display:none;' : '' }}">
 
-    {{-- Header --}}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <span style="color:#ff6b00;font-weight:700;font-size:14px;letter-spacing:.2px;">{{ $quiz->title }}</span>
+        <span style="color:#ff6b00;font-weight:700;font-size:14px;">{{ $quiz->title }}</span>
         <span style="color:rgba(255,255,255,0.4);font-size:13px;">Pytanie {{ $i + 1 }} / {{ $total }}</span>
     </div>
 
-    {{-- Progress --}}
     <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:28px;overflow:hidden;">
-        <div style="height:100%;width:{{ round((($i+1)/$total)*100) }}%;background:linear-gradient(135deg,#ff6b00,#ff9a3c);border-radius:2px;"></div>
+        <div style="height:100%;width:{{ round((($i+1)/$total)*100) }}%;background:linear-gradient(135deg,#ff6b00,#ff9a3c);"></div>
     </div>
 
-    <div class="dash-panel" style="margin-bottom:0;">
+    <div class="dash-panel">
 
         @if($question->image_path)
-            <img src="{{ asset('storage/' . $question->image_path) }}" alt="Zdjęcie pytania"
-                 style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:20px;">
+            <img src="{{ asset('storage/' . $question->image_path) }}" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:20px;">
         @endif
 
-        {{-- Question --}}
-        <div style="font-size:20px;font-weight:700;color:#fff;line-height:1.35;margin-bottom:22px;">
+        <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:22px;">
             {{ $question->content }}
         </div>
 
-        {{-- Answers --}}
-        <div style="display:grid;gap:10px;{{ $type === 'true_false' ? 'grid-template-columns:1fr 1fr;' : '' }}margin-bottom:24px;">
+        <div style="display:grid;gap:10px;{{ $type === 'true_false' ? 'grid-template-columns:1fr 1fr;' : '' }}">
             @foreach($answers as $idx => $answer)
-            @if(!empty(trim($answer ?? '')))
-            <div class="qp-answer"
-                 data-idx="{{ $idx }}"
-                 data-qid="{{ $question->id }}"
-                 data-type="{{ $type }}"
-                 onclick="selectAnswer(this)"
-                 style="
-                     padding:13px 16px;border-radius:12px;
-                     background:rgba(255,255,255,0.04);
-                     border:1px solid rgba(255,255,255,0.08);
-                     cursor:pointer;transition:.2s ease;
-                     color:rgba(255,255,255,0.8);font-size:15px;
-                     display:flex;align-items:center;gap:12px;
-                     user-select:none;
-                 "
-                 onmouseover="if(!this.classList.contains('active')){this.style.borderColor='rgba(255,107,0,0.4)';this.style.background='rgba(255,107,0,0.06)';}"
-                 onmouseout="if(!this.classList.contains('active')){this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';}">
-                <span class="qp-letter" style="
-                    width:28px;height:28px;border-radius:50%;
-                    background:rgba(255,255,255,0.08);
-                    display:inline-flex;align-items:center;justify-content:center;
-                    font-weight:800;font-size:12px;flex-shrink:0;transition:.2s;
-                ">{{ $letters[$idx] ?? chr(65+$idx) }}</span>
-                {{ $answer }}
-            </div>
-            @endif
+                @if(!empty(trim($answer ?? '')))
+                <div class="qp-answer"
+                     data-idx="{{ $idx }}"
+                     data-qid="{{ $question->id }}"
+                     data-type="{{ $type }}"
+                     onclick="selectAnswer(this)"
+                     style="padding:13px 16px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);cursor:pointer;color:rgba(255,255,255,0.8);">
+
+                    <span class="qp-letter">{{ $letters[$idx] ?? chr(65+$idx) }}</span>
+                    {{ $answer }}
+                </div>
+                @endif
             @endforeach
         </div>
 
-        {{-- Actions --}}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex;justify-content:space-between;margin-top:20px;">
             @if($i > 0)
-                <button type="button" onclick="goTo({{ $i - 1 }})"
-                        style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:14px;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;padding:0;"
-                        onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
-                    ← Poprzednie
-                </button>
+                <button type="button" onclick="goTo({{ $i - 1 }})">← Poprzednie</button>
             @else
-                <a href="{{ url('/') }}" style="color:rgba(255,255,255,0.4);font-size:14px;text-decoration:none;transition:.2s;"
-                   onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
-                    ← Wyjdź
-                </a>
+                <a href="{{ url('/') }}">← Wyjdź</a>
             @endif
 
             @if($i < $total - 1)
-                <button type="button" onclick="goTo({{ $i + 1 }})" class="dash-cta-btn">
-                    Dalej →
-                </button>
+                <button type="button" onclick="goTo({{ $i + 1 }})">Dalej →</button>
             @else
-                <button type="submit" onclick="prepareSubmit()" class="dash-cta-btn">
-                    Zakończ quiz ✓
-                </button>
+                <button type="submit" onclick="prepareSubmit()">Zakończ quiz ✓</button>
             @endif
         </div>
 
@@ -124,6 +100,18 @@
 @endforeach
 
 </form>
+
+<!-- 🚨 REPORT QUIZ (POZA FORMULARZEM!) -->
+<div style="margin-top:20px;text-align:right;">
+    <form action="{{ route('quiz.report', $quiz->id) }}" method="POST">
+        @csrf
+        <button type="submit"
+            style="background:none;border:1px solid rgba(255,0,0,0.4);color:rgba(255,100,100,0.9);padding:6px 10px;border-radius:8px;">
+            🚨 Zgłoś quiz
+        </button>
+    </form>
+</div>
+
 </div>
 
 <style>
@@ -132,20 +120,15 @@
     border-color: #ff6b00 !important;
     color: #fff !important;
 }
-.qp-answer.active .qp-letter {
-    background: #ff6b00 !important;
-    color: #fff !important;
-}
 </style>
 
 <script>
 const selected = {};
 
 function selectAnswer(el) {
-    const qid  = el.dataset.qid;
-    const idx  = parseInt(el.dataset.idx);
+    const qid = el.dataset.qid;
+    const idx = parseInt(el.dataset.idx);
     const type = el.dataset.type;
-    const siblings = document.querySelectorAll(`.qp-answer[data-qid="${qid}"]`);
 
     if (type === 'multiple_choice') {
         if (!selected[qid]) selected[qid] = [];
@@ -158,7 +141,7 @@ function selectAnswer(el) {
         }
     } else {
         selected[qid] = [idx];
-        siblings.forEach(s => s.classList.remove('active'));
+        document.querySelectorAll(`[data-qid="${qid}"]`).forEach(e => e.classList.remove('active'));
         el.classList.add('active');
     }
 }
@@ -166,17 +149,17 @@ function selectAnswer(el) {
 function goTo(i) {
     document.querySelectorAll('.question-slide').forEach(s => s.style.display = 'none');
     document.getElementById('slide-' + i).style.display = 'block';
-    window.scrollTo(0, 0);
 }
 
 function prepareSubmit() {
     const container = document.getElementById('answersContainer');
     container.innerHTML = '';
-    for (const [qid, idxArr] of Object.entries(selected)) {
-        idxArr.forEach(idx => {
+
+    for (const [qid, arr] of Object.entries(selected)) {
+        arr.forEach(idx => {
             const input = document.createElement('input');
-            input.type  = 'hidden';
-            input.name  = `answers[${qid}][]`;
+            input.type = 'hidden';
+            input.name = `answers[${qid}][]`;
             input.value = idx;
             container.appendChild(input);
         });

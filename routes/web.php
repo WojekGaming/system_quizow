@@ -9,6 +9,7 @@ use App\Http\Controllers\FriendController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\QuizReportController;
 
 // ── Public ────────────────────────────────────────────────
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
