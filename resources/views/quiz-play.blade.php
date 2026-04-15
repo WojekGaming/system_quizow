@@ -7,6 +7,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="app-body">
+    <h1 style="color:red;position:fixed;top:10px;left:10px;z-index:9999;">
+        QUIZ PLAY TEST
+    </h1>
 
 <div class="app-bg">
     <div class="app-bg-blob app-bg-blob--1"></div>
