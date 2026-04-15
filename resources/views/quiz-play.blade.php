@@ -83,43 +83,6 @@
                 @endif
             @endforeach
         </div>
-
-        <div style="display:flex;justify-content:space-between;margin-top:20px;align-items:center;">
-
-            {{-- LEWA STRONA (może być pusta albo info) --}}
-            <div>
-                {{-- opcjonalnie coś możesz dać --}}
-            </div>
-
-            {{-- PRAWA STRONA: akcje --}}
-            <div style="display:flex;gap:12px;align-items:center;">
-
-                @if($i > 0)
-                    <button type="button" onclick="goTo({{ $i - 1 }})">← Poprzednie</button>
-                @else
-                    <a href="{{ url('/') }}">← Wyjdź</a>
-                @endif
-
-                @if($i < $total - 1)
-                    <button type="button" onclick="goTo({{ $i + 1 }})">Dalej →</button>
-                @else
-                    <button type="submit" onclick="prepareSubmit()">Zakończ quiz ✓</button>
-                @endif
-
-                {{-- 🚨 REPORT --}}
-                <a href="{{ route('quiz.report', $quiz->id) }}"
-                onclick="event.preventDefault(); document.getElementById('report-form').submit();"
-                style="color:rgba(255,100,100,0.9);font-size:13px;cursor:pointer;text-decoration:none;">
-                    🚨 Zgłoś
-                </a>
-
-                <form id="report-form" method="POST" action="{{ route('quiz.report', $quiz->id) }}" style="display:none;">
-                    @csrf
-                </form>
-
-            </div>
-
-        </div>
         
 
         <div style="display:flex;justify-content:space-between;margin-top:20px;">
@@ -134,6 +97,16 @@
             @else
                 <button type="submit" onclick="prepareSubmit()">Zakończ quiz ✓</button>
             @endif
+            {{-- 🚨 REPORT --}}
+            <a href="{{ route('quiz.report', $quiz->id) }}"
+            onclick="event.preventDefault(); document.getElementById('report-form').submit();"
+            style="color:rgba(255,100,100,0.9);font-size:13px;cursor:pointer;text-decoration:none;">
+                🚨 Zgłoś
+            </a>
+
+            <form id="report-form" method="POST" action="{{ route('quiz.report', $quiz->id) }}" style="display:none;">
+                @csrf
+            </form>
         </div>
 
     </div>
