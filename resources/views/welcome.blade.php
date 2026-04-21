@@ -592,6 +592,27 @@
 {{-- ══ CONTENT ══ --}}
 <section class="content" id="quizzes" style="{{ auth()->check() ? 'padding-top:110px;' : '' }}">
 
+    @if(session('success'))
+    <div style="
+        max-width:1280px;
+        margin:0 auto 20px;
+        padding:14px 18px;
+        border-radius:14px;
+        background:rgba(46,158,91,0.08);
+        border:1px solid rgba(46,158,91,0.25);
+        color:#4ade80;
+        font-size:14px;
+        font-weight:600;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        backdrop-filter:blur(10px);
+    ">
+        <span style="font-size:18px;">✔</span>
+        {{ session('success') }}
+    </div>
+    @endif
+
     @php
         $activeFilters = array_filter([
             'search'     => request('search') ? '🔍 '.request('search') : null,
@@ -713,8 +734,6 @@
 @if(request()->hasAny(['search','category','author','premium','min_rating','date_from','date_to']))
     <div class="pag">{{ $quizzes->withQueryString()->links() }}</div>
 @endif
-
-    <div class="pag">{{ $quizzes->withQueryString()->links() }}</div>
 
 </section>
 

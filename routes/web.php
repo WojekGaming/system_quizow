@@ -16,6 +16,7 @@ Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
 Route::get('/quiz/{quiz}',         [QuizPlayController::class, 'show'])->name('quiz.show');
 Route::post('/quiz/{quiz}/submit', [QuizPlayController::class, 'submit'])->name('quiz.submit');
+Route::post('/quiz/{quiz}/rate',   [QuizPlayController::class, 'rate'])->middleware('auth')->name('quiz.rate');
 
 // ── Banned page ───────────────────────────────────────────
 Route::get('/banned', function () {

@@ -82,6 +82,62 @@
         @endforeach
     </div>
 
+        @auth
+        <div class="dash-panel" style="text-align:center;margin-bottom:1.5rem;">
+            <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;">
+                Oceń ten quiz
+            </div>
+
+            <div style="font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:16px;">
+                Skala ocen: 1–6
+            </div>
+
+            @if(session('success'))
+                <div style="
+                    margin-bottom:14px;
+                    padding:10px 14px;
+                    border-radius:10px;
+                    background:rgba(46,158,91,0.12);
+                    border:1px solid rgba(46,158,91,0.3);
+                    color:#4ade80;
+                    font-size:14px;
+                    font-weight:600;
+                ">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('quiz.rate', $quiz) }}">
+                @csrf
+
+                <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+                    @for($i = 1; $i <= 6; $i++)
+                        <button
+                            type="submit"
+                            name="rating"
+                            value="{{ $i }}"
+                            style="
+                                width:48px;height:48px;
+                                border-radius:12px;
+                                border:1px solid rgba(255,255,255,0.12);
+                                background:rgba(255,255,255,0.05);
+                                color:#fff;
+                                font-size:16px;
+                                font-weight:700;
+                                font-family:'Outfit',sans-serif;
+                                cursor:pointer;
+                                transition:.2s;
+                            "
+                            onmouseover="this.style.background='rgba(255,107,0,0.14)';this.style.borderColor='rgba(255,107,0,0.45)'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.12)'"
+                        >
+                            {{ $i }}
+                        </button>
+                    @endfor
+                </div>
+            </form>
+        </div>
+    @endauth
     {{-- Actions --}}
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <a href="{{ route('quiz.show', $quiz) }}" class="dash-cta-btn">🔄 Zagraj ponownie</a>

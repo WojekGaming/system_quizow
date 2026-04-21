@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\QuizRating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -66,15 +67,14 @@ class QuizPlayController extends Controller
             }
 
             $results[] = [
-                'question'      => $question->content,
-                'user_answer'   => $userAnswer,
-                'correct'       => $correctAnswer,
-                'is_correct'    => $isCorrect,
-                'answers'       => $answers,
+                'question'    => $question->content,
+                'user_answer' => $userAnswer,
+                'correct'     => $correctAnswer,
+                'is_correct'  => $isCorrect,
+                'answers'     => $answers,
             ];
         }
 
-        // Save attempt if logged in
         if (Auth::check()) {
             QuizAttempt::create([
                 'quiz_id'      => $quiz->id,
@@ -88,5 +88,34 @@ class QuizPlayController extends Controller
         $percentage = $maxPoints > 0 ? round(($scorePoints / $maxPoints) * 100) : 0;
 
         return view('quiz-result', compact('quiz', 'results', 'scorePoints', 'maxPoints', 'percentage'));
+    }
+
+    public function rate(Request $request, Quiz $quiz)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:6',
+        ]);
+
+        $userId = Auth::id();
+
+        QuizRating::updateOrCreate(
+            [
+                'quiz_id' => $quiz->id,
+                'user_id' => $userId,
+            ],
+            [
+                'rating' => $request->rating,
+            ]
+        );
+
+        $avg = QuizRating::where('quiz_id', $quiz->id)->avg('rating');
+        $count = QuizRating::where('quiz_id', $quiz->id)->count();
+
+        $quiz->update([
+            'average_rating' => $avg,
+            'ratings_count'  => $count,
+        ]);
+
+        return redirect()->route('home')->with('success', 'Dzięki za ocenę!');
     }
 }
