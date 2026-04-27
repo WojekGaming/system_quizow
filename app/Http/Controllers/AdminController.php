@@ -127,6 +127,7 @@ class AdminController extends Controller
             'deleted_by_admin_at'      => now(),
             'deleted_by_admin_user_id' => Auth::id(),
         ]);
+        $quiz->questions()->detach();
         $quiz->delete();
 
         return back()->with('success', "Quiz \"{$quiz->title}\" został usunięty.");

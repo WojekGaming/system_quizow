@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quizzies — Sprawdź swoją wiedzę</title>
+    <title>Quizzies ÔÇö Sprawd┼║ swoj─ů wiedz─Ö</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -37,7 +37,7 @@
         .bg-grid { position:absolute;inset:0;background-image:linear-gradient(rgba(255,107,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,0,.03) 1px,transparent 1px);background-size:60px 60px; }
         .bg-noise { position:absolute;inset:0;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
 
-        /* ── NAVBAR ── */
+        /* ÔöÇÔöÇ NAVBAR ÔöÇÔöÇ */
         .nav { position:fixed;top:0;left:0;right:0;z-index:200;transition:background .3s,border-color .3s; }
         .nav.scrolled { background:rgba(8,8,9,.92);border-bottom:1px solid rgba(255,107,0,.12);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px); }
 
@@ -78,7 +78,7 @@
         .nav__filter-btn .chevron { font-size:10px;transition:transform .25s; }
         .nav__filter-btn.active .chevron { transform:rotate(180deg); }
 
-        /* ── MOBILE HAMBURGER (new) ── */
+        /* ÔöÇÔöÇ MOBILE HAMBURGER (new) ÔöÇÔöÇ */
         .nav__hamburger {
             display: none;
             background: none;
@@ -162,7 +162,7 @@
         }
         .nav__mobile-filter:hover { background: rgba(255,107,0,.1); border-color: rgba(255,107,0,.3); color: #ff8c33; }
 
-        /* ── USER DROPDOWN ── */
+        /* ÔöÇÔöÇ USER DROPDOWN ÔöÇÔöÇ */
         .nav__user {
             position: relative;
             display: flex; align-items: center; gap: 8px;
@@ -189,7 +189,7 @@
         .nav__dropdown-item--danger { color:rgba(248,113,113,.8); }
         .nav__dropdown-item--danger:hover { background:rgba(220,50,50,.08);color:#f87171; }
 
-        /* ── FILTERS PANEL (redesigned) ── */
+        /* ÔöÇÔöÇ FILTERS PANEL (redesigned) ÔöÇÔöÇ */
         .filters-wrap {
             position: fixed;
             top: 68px; left: 0; right: 0;
@@ -224,7 +224,7 @@
             text-transform: uppercase; letter-spacing: .8px;
         }
 
-        /* Filter controls — dark glass */
+        /* Filter controls ÔÇö dark glass */
         .fc {
             background: rgba(255,255,255,.07);
             border: 1px solid rgba(255,255,255,.1);
@@ -242,7 +242,7 @@
         /* Wrapper for custom select arrow */
         .fc-select-wrap { position: relative; }
         .fc-select-wrap::after {
-            content: '▾';
+            content: 'Ôľż';
             position: absolute; right: 11px; top: 50%;
             transform: translateY(-50%);
             color: rgba(255,255,255,.35); font-size: 10px;
@@ -277,7 +277,7 @@
         }
         .btn-apply:hover { opacity: .88; }
 
-        /* ── HERO (original, unchanged) ── */
+        /* ÔöÇÔöÇ HERO (original, unchanged) ÔöÇÔöÇ */
         .hero { position:relative;z-index:1;padding:160px 2rem 80px;text-align:center;max-width:1280px;margin:0 auto; }
         .hero__eyebrow { display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,0,.1);border:1px solid rgba(255,107,0,.25);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;color:#ff8c33;margin-bottom:1.8rem;animation:fadeUp .6s ease both; }
         .hero__title { font-size:clamp(40px,6vw,72px);font-weight:800;color:#fff;letter-spacing:-2px;line-height:1.05;margin-bottom:1.4rem;animation:fadeUp .6s .1s ease both; }
@@ -296,7 +296,7 @@
 
         @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-        /* ── CONTENT (original, unchanged) ── */
+        /* ÔöÇÔöÇ CONTENT (original, unchanged) ÔöÇÔöÇ */
         .content { position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 2rem 6rem; }
         .pills { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.4rem;animation:fadeUp .4s ease both; }
         .pill { display:inline-flex;align-items:center;gap:7px;background:rgba(255,107,0,.1);border:1px solid rgba(255,107,0,.22);border-radius:20px;padding:5px 13px;font-size:12px;color:#ff8c33; }
@@ -340,7 +340,7 @@
         .empty a:hover { text-decoration:underline; }
         .pag { display:flex;justify-content:center;margin-top:3rem; }
 
-        /* ── RESPONSIVE ── */
+        /* ÔöÇÔöÇ RESPONSIVE ÔöÇÔöÇ */
         @media (max-width: 1100px) {
             .filters-inner { grid-template-columns: repeat(3, 1fr) auto; }
         }
@@ -392,12 +392,12 @@
     <div class="bg-noise"></div>
 </div>
 
-{{-- ══ NAVBAR ══ --}}
+{{-- ÔĽÉÔĽÉ NAVBAR ÔĽÉÔĽÉ --}}
 <nav class="nav" id="mainNav">
     <div class="nav__inner">
 
         <a href="{{ url('/') }}" class="nav__logo">
-            <div class="nav__logo-icon">⚡</div>
+            <div class="nav__logo-icon">ÔÜí</div>
             <span class="nav__logo-text">Quizz<span>ies</span></span>
         </a>
 
@@ -408,17 +408,17 @@
                        placeholder="Szukaj quizu..."
                        value="{{ request('search') }}"
                        autocomplete="off">
-                <span class="nav__search-ico">🔍</span>
+                <span class="nav__search-ico">­čöŹ</span>
             </div>
             <button class="nav__filter-btn" id="filterToggle">
-                ⚙ Filtry <span class="chevron">▾</span>
+                ÔÜÖ Filtry <span class="chevron">Ôľż</span>
             </button>
         </div>
 
         {{-- Right: auth links --}}
         <div class="nav__right">
             @auth
-                <a href="{{ route('quizzes.create') }}" class="nav__btn">＋ Stwórz quiz</a>
+                <a href="{{ route('quizzes.create') }}" class="nav__btn">´╝ő Stw├│rz quiz</a>
 
                 {{-- User dropdown --}}
                 <div class="nav__user" id="userDropdownToggle">
@@ -426,7 +426,7 @@
                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                     </div>
                     <span class="nav__username">{{ auth()->user()->name }}</span>
-                    <span class="nav__chevron-user">▾</span>
+                    <span class="nav__chevron-user">Ôľż</span>
 
                     <div class="nav__dropdown" id="userDropdown">
                         <div class="nav__dropdown-header">
@@ -435,26 +435,26 @@
                         </div>
                         <div class="nav__dropdown-divider"></div>
                         @if(auth()->user()->is_admin)
-                            <a href="{{ route('admin.quizzes') }}" class="nav__dropdown-item">🛡 Panel admina</a>
+                            <a href="{{ route('admin.quizzes') }}" class="nav__dropdown-item">­čŤí Panel admina</a>
                             <div class="nav__dropdown-divider"></div>
                         @endif
-                        <a href="{{ route('dashboard') }}" class="nav__dropdown-item">📊 Dashboard</a>
-                        <a href="{{ route('profile.edit') }}" class="nav__dropdown-item">✏️ Edycja profilu</a>
+                        <a href="{{ route('dashboard') }}" class="nav__dropdown-item">­čôŐ Dashboard</a>
+                        <a href="{{ route('profile.edit') }}" class="nav__dropdown-item">ÔťĆ´ŞĆ Edycja profilu</a>
                         <div class="nav__dropdown-divider"></div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="nav__dropdown-item nav__dropdown-item--danger">🚪 Wyloguj</button>
+                            <button type="submit" class="nav__dropdown-item nav__dropdown-item--danger">­čÜ¬ Wyloguj</button>
                         </form>
                     </div>
                 </div>
             @else
-                <a href="{{ route('login') }}" class="nav__link">Zaloguj się</a>
-                <a href="{{ route('register') }}" class="nav__btn">Dołącz za darmo</a>
+                <a href="{{ route('login') }}" class="nav__link">Zaloguj si─Ö</a>
+                <a href="{{ route('register') }}" class="nav__btn">Do┼é─ůcz za darmo</a>
             @endauth
         </div>
 
         {{-- Mobile hamburger --}}
-        <button class="nav__hamburger" id="mobileToggle" aria-label="Menu">☰</button>
+        <button class="nav__hamburger" id="mobileToggle" aria-label="Menu">Ôś░</button>
 
     </div>
 
@@ -464,28 +464,28 @@
             <input type="text" id="mobileSearch"
                    placeholder="Szukaj quizu..."
                    value="{{ request('search') }}">
-            <span class="nav__mobile-search-ico">🔍</span>
+            <span class="nav__mobile-search-ico">­čöŹ</span>
         </div>
         @auth
             @if(auth()->user()->is_admin)
-                <a href="{{ route('admin.quizzes') }}" class="nav__mobile-link">🛡 Panel admina</a>
+                <a href="{{ route('admin.quizzes') }}" class="nav__mobile-link">­čŤí Panel admina</a>
             @endif
-            <a href="{{ route('dashboard') }}" class="nav__mobile-link">📊 Dashboard</a>
-            <a href="{{ route('profile.edit') }}" class="nav__mobile-link">✏️ Edycja profilu</a>
-            <a href="{{ route('quizzes.create') }}" class="nav__mobile-btn">＋ Stwórz quiz</a>
+            <a href="{{ route('dashboard') }}" class="nav__mobile-link">­čôŐ Dashboard</a>
+            <a href="{{ route('profile.edit') }}" class="nav__mobile-link">ÔťĆ´ŞĆ Edycja profilu</a>
+            <a href="{{ route('quizzes.create') }}" class="nav__mobile-btn">´╝ő Stw├│rz quiz</a>
             <form method="POST" action="{{ route('logout') }}" style="margin-top:4px;">
                 @csrf
-                <button type="submit" style="width:100%;background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.2);border-radius:11px;padding:11px;color:#f87171;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">🚪 Wyloguj</button>
+                <button type="submit" style="width:100%;background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.2);border-radius:11px;padding:11px;color:#f87171;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">­čÜ¬ Wyloguj</button>
             </form>
         @else
-            <a href="{{ route('login') }}" class="nav__mobile-link">Zaloguj się</a>
-            <a href="{{ route('register') }}" class="nav__mobile-btn">⚡ Dołącz za darmo</a>
+            <a href="{{ route('login') }}" class="nav__mobile-link">Zaloguj si─Ö</a>
+            <a href="{{ route('register') }}" class="nav__mobile-btn">ÔÜí Do┼é─ůcz za darmo</a>
         @endauth
-        <button class="nav__mobile-filter" id="mobileFilterToggle">⚙ Filtry</button>
+        <button class="nav__mobile-filter" id="mobileFilterToggle">ÔÜÖ Filtry</button>
     </div>
 </nav>
 
-{{-- ══ FILTERS ══ --}}
+{{-- ÔĽÉÔĽÉ FILTERS ÔĽÉÔĽÉ --}}
 <div class="filters-wrap" id="filtersWrap">
     <div class="filters-panel">
         <form class="filters-inner" method="GET" action="{{ url('/') }}">
@@ -498,8 +498,8 @@
                         <option value="oldest"         {{ request('sort')==='oldest'                 ?'selected':'' }}>Najstarsze</option>
                         <option value="popular"        {{ request('sort')==='popular'                ?'selected':'' }}>Najpopularniejsze</option>
                         <option value="rating"         {{ request('sort')==='rating'                 ?'selected':'' }}>Najlepiej oceniane</option>
-                        <option value="questions_desc" {{ request('sort')==='questions_desc'         ?'selected':'' }}>Pytania ↓</option>
-                        <option value="questions_asc"  {{ request('sort')==='questions_asc'          ?'selected':'' }}>Pytania ↑</option>
+                        <option value="questions_desc" {{ request('sort')==='questions_desc'         ?'selected':'' }}>Pytania Ôćô</option>
+                        <option value="questions_asc"  {{ request('sort')==='questions_asc'          ?'selected':'' }}>Pytania ÔćĹ</option>
                     </select>
                 </div>
             </div>
@@ -518,14 +518,14 @@
 
             <div class="fg">
                 <span class="fg-label">Autor</span>
-                <input class="fc" type="text" name="author" placeholder="Nazwa użytkownika" value="{{ request('author') }}">
+                <input class="fc" type="text" name="author" placeholder="Nazwa u┼╝ytkownika" value="{{ request('author') }}">
             </div>
 
             <div class="fg">
                 <span class="fg-label">Data dodania</span>
                 <div class="date-row">
                     <input class="fc" type="date" name="date_from" value="{{ request('date_from') }}">
-                    <span class="date-sep">–</span>
+                    <span class="date-sep">ÔÇô</span>
                     <input class="fc" type="date" name="date_to" value="{{ request('date_to') }}">
                 </div>
             </div>
@@ -544,11 +544,11 @@
             <div class="fg">
                 <span class="fg-label">Min. ocena</span>
                 <input class="fc" type="number" name="min_rating" min="1" max="5" step="0.5" placeholder="np. 3.5" value="{{ request('min_rating') }}">
-                <span class="filter-hint">Skala 1–5</span>
+                <span class="filter-hint">Skala 1ÔÇô5</span>
             </div>
 
             <div class="filters-actions">
-                <button type="button" class="btn-reset" id="resetBtn">✕ Reset</button>
+                <button type="button" class="btn-reset" id="resetBtn">ÔťĽ Reset</button>
                 <button type="submit" class="btn-apply">Zastosuj</button>
             </div>
 
@@ -556,26 +556,26 @@
     </div>
 </div>
 
-{{-- ══ HERO ══ --}}
+{{-- ÔĽÉÔĽÉ HERO ÔĽÉÔĽÉ --}}
 @guest
 <section class="hero">
-    <div class="hero__eyebrow">⚡ Platforma quizowa #1</div>
+    <div class="hero__eyebrow">ÔÜí Platforma quizowa #1</div>
     <h1 class="hero__title">
-        Sprawdź swoją<br>
-        <span class="hl">wiedzę</span> i wygrywaj
+        Sprawd┼║ swoj─ů<br>
+        <span class="hl">wiedz─Ö</span> i wygrywaj
     </h1>
     <p class="hero__sub">
-        Tysiące quizów z różnych dziedzin. Twórz własne,
-        rywalizuj ze znajomymi i śledź swoje postępy.
+        Tysi─ůce quiz├│w z r├│┼╝nych dziedzin. Tw├│rz w┼éasne,
+        rywalizuj ze znajomymi i ┼Ťled┼║ swoje post─Öpy.
     </p>
     <div class="hero__ctas">
-        <a href="{{ route('register') }}" class="hero__cta-main">⚡ Zacznij za darmo</a>
-        <a href="#quizzes" class="hero__cta-ghost">Przeglądaj quizy ↓</a>
+        <a href="{{ route('register') }}" class="hero__cta-main">ÔÜí Zacznij za darmo</a>
+        <a href="#quizzes" class="hero__cta-ghost">Przegl─ůdaj quizy Ôćô</a>
     </div>
     <div class="hero__stats">
         <div class="hero__stat">
             <div class="hero__stat-val">{{ $quizzes->total() }}<span>+</span></div>
-            <div class="hero__stat-label">Dostępnych quizów</div>
+            <div class="hero__stat-label">Dost─Öpnych quiz├│w</div>
         </div>
         <div class="hero__stat">
             <div class="hero__stat-val">{{ $categories->count() }}<span>+</span></div>
@@ -589,7 +589,7 @@
 </section>
 @endguest
 
-{{-- ══ CONTENT ══ --}}
+{{-- ÔĽÉÔĽÉ CONTENT ÔĽÉÔĽÉ --}}
 <section class="content" id="quizzes" style="{{ auth()->check() ? 'padding-top:110px;' : '' }}">
 
     @if(session('success'))
@@ -608,20 +608,20 @@
         gap:10px;
         backdrop-filter:blur(10px);
     ">
-        <span style="font-size:18px;">✔</span>
+        <span style="font-size:18px;">Ôťö</span>
         {{ session('success') }}
     </div>
     @endif
 
     @php
         $activeFilters = array_filter([
-            'search'     => request('search') ? '🔍 '.request('search') : null,
-            'category'   => $categories->firstWhere('id', request('category'))?->name ? '🏷 '.$categories->firstWhere('id', request('category'))->name : null,
-            'author'     => request('author') ? '👤 '.request('author') : null,
+            'search'     => request('search') ? '­čöŹ '.request('search') : null,
+            'category'   => $categories->firstWhere('id', request('category'))?->name ? '­čĆĚ '.$categories->firstWhere('id', request('category'))->name : null,
+            'author'     => request('author') ? '­čĹĄ '.request('author') : null,
             'date_from'  => request('date_from') ? 'Od: '.request('date_from') : null,
             'date_to'    => request('date_to') ? 'Do: '.request('date_to') : null,
-            'premium'    => request('premium')==='1' ? '⭐ Premium' : (request('premium')==='0' ? 'Darmowe' : null),
-            'min_rating' => request('min_rating') ? '⭐ min '.request('min_rating') : null,
+            'premium'    => request('premium')==='1' ? 'ÔşÉ Premium' : (request('premium')==='0' ? 'Darmowe' : null),
+            'min_rating' => request('min_rating') ? 'ÔşÉ min '.request('min_rating') : null,
         ]);
     @endphp
 
@@ -630,7 +630,7 @@
             @foreach($activeFilters as $key => $label)
                 <span class="pill">
                     {{ $label }}
-                    <button type="button" onclick="removeFilter('{{ $key }}')">×</button>
+                    <button type="button" onclick="removeFilter('{{ $key }}')">├Ś</button>
                 </span>
             @endforeach
         </div>
@@ -646,7 +646,7 @@
         </h2>
 
         @if(request()->hasAny(['search','category','author','premium','min_rating','date_from','date_to']))
-            <span class="section-meta">Znaleziono <strong>{{ $quizzes->total() }}</strong> quizów</span>
+            <span class="section-meta">Znaleziono <strong>{{ $quizzes->total() }}</strong> quiz├│w</span>
         @else
             <span class="section-meta">Pokazano <strong>{{ $latestQuizzes->count() }}</strong> z 10 najnowszych</span>
         @endif
@@ -657,19 +657,19 @@
         @forelse($quizzes as $i => $quiz)
             <div class="qcard" style="animation-delay:{{ $i * 0.05 }}s">
                 <div class="qcard__badges">
-                    @if($quiz->is_premium)<span class="badge badge-premium">⭐ Premium</span>@endif
+                    @if($quiz->is_premium)<span class="badge badge-premium">ÔşÉ Premium</span>@endif
                     @if($quiz->category)<span class="badge badge-category">{{ $quiz->category->name }}</span>@endif
                 </div>
                 <h3 class="qcard__title">{{ $quiz->title }}</h3>
                 @if($quiz->description)<p class="qcard__desc">{{ $quiz->description }}</p>@endif
                 <div class="qcard__meta">
-                    <span class="qcard__meta-item"><span class="ico">📋</span>{{ $quiz->questions_count }} pytań</span>
-                    <span class="qcard__meta-item"><span class="ico">▶</span>{{ number_format($quiz->attempts_count ?? 0) }} podejść</span>
+                    <span class="qcard__meta-item"><span class="ico">­čôő</span>{{ $quiz->questions_count }} pyta┼ä</span>
+                    <span class="qcard__meta-item"><span class="ico">ÔľÂ</span>{{ number_format($quiz->attempts_count ?? 0) }} podej┼Ť─ç</span>
                     @if($quiz->average_rating > 0)
                         <span class="qcard__meta-item qcard__rating">
                             <span class="stars">
-                                @for($s=1;$s<=6;$s++)
-                                    <span class="star {{ $s<=round($quiz->average_rating)?'on':'off' }}">★</span>
+                                @for($s=1;$s<=5;$s++)
+                                    <span class="star {{ $s<=round($quiz->average_rating)?'on':'off' }}">Ôśů</span>
                                 @endfor
                             </span>
                             <span class="rating-val">{{ number_format($quiz->average_rating,1) }}</span>
@@ -681,33 +681,33 @@
                         <div class="author-av">{{ strtoupper(substr($quiz->user->name ?? 'A',0,1)) }}</div>
                         <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
                     </div>
-                    <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj →</a>
+                    <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj Ôćĺ</a>
                 </div>
             </div>
         @empty
             <div class="empty">
-                <div class="empty__icon">🔍</div>
-                <p>Brak quizów spełniających podane kryteria.</p>
-                <a href="{{ url('/') }}">Pokaż wszystkie quizy →</a>
+                <div class="empty__icon">­čöŹ</div>
+                <p>Brak quiz├│w spe┼éniaj─ůcych podane kryteria.</p>
+                <a href="{{ url('/') }}">Poka┼╝ wszystkie quizy Ôćĺ</a>
             </div>
         @endforelse
     @else
         @forelse($latestQuizzes as $i => $quiz)
             <div class="qcard" style="animation-delay:{{ $i * 0.05 }}s">
                 <div class="qcard__badges">
-                    @if($quiz->is_premium)<span class="badge badge-premium">⭐ Premium</span>@endif
+                    @if($quiz->is_premium)<span class="badge badge-premium">ÔşÉ Premium</span>@endif
                     @if($quiz->category)<span class="badge badge-category">{{ $quiz->category->name }}</span>@endif
                 </div>
                 <h3 class="qcard__title">{{ $quiz->title }}</h3>
                 @if($quiz->description)<p class="qcard__desc">{{ $quiz->description }}</p>@endif
                 <div class="qcard__meta">
-                    <span class="qcard__meta-item"><span class="ico">📋</span>{{ $quiz->questions_count }} pytań</span>
-                    <span class="qcard__meta-item"><span class="ico">▶</span>{{ number_format($quiz->attempts_count ?? 0) }} podejść</span>
+                    <span class="qcard__meta-item"><span class="ico">­čôő</span>{{ $quiz->questions_count }} pyta┼ä</span>
+                    <span class="qcard__meta-item"><span class="ico">ÔľÂ</span>{{ number_format($quiz->attempts_count ?? 0) }} podej┼Ť─ç</span>
                     @if($quiz->average_rating > 0)
                         <span class="qcard__meta-item qcard__rating">
                             <span class="stars">
-                                @for($s=1;$s<=6;$s++)
-                                    <span class="star {{ $s<=round($quiz->average_rating)?'on':'off' }}">★</span>
+                                @for($s=1;$s<=5;$s++)
+                                    <span class="star {{ $s<=round($quiz->average_rating)?'on':'off' }}">Ôśů</span>
                                 @endfor
                             </span>
                             <span class="rating-val">{{ number_format($quiz->average_rating,1) }}</span>
@@ -719,13 +719,13 @@
                         <div class="author-av">{{ strtoupper(substr($quiz->user->name ?? 'A',0,1)) }}</div>
                         <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
                     </div>
-                    <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj →</a>
+                    <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj Ôćĺ</a>
                 </div>
             </div>
         @empty
             <div class="empty">
-                <div class="empty__icon">📭</div>
-                <p>Nie ma jeszcze żadnych quizów.</p>
+                <div class="empty__icon">­čôş</div>
+                <p>Nie ma jeszcze ┼╝adnych quiz├│w.</p>
             </div>
         @endforelse
     @endif
@@ -782,7 +782,7 @@
         filterToggle.classList.add('active');
     @endif
 
-    // Search on Enter — desktop
+    // Search on Enter ÔÇö desktop
     document.getElementById('navSearch').addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
         const params = new URLSearchParams(window.location.search);
@@ -791,7 +791,7 @@
         window.location.search = params.toString();
     });
 
-    // Search on Enter — mobile
+    // Search on Enter ÔÇö mobile
     document.getElementById('mobileSearch').addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
         const params = new URLSearchParams(window.location.search);

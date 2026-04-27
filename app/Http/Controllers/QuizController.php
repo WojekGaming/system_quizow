@@ -107,6 +107,7 @@ class QuizController extends Controller
     public function destroy(Quiz $quiz)
     {
         $this->authorize('delete', $quiz);
+        $quiz->questions()->detach();
         $quiz->delete();
         return redirect()->route('quizzes.index')->with('success', 'Quiz usunięty.');
     }

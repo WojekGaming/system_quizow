@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/quizzes/{quiz}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
     Route::patch('/quizzes/{quiz}',    [QuizController::class, 'update'])->name('quizzes.update');
     Route::delete('/quizzes/{quiz}',   [QuizController::class, 'destroy'])->name('quizzes.destroy');
+    Route::post('/quiz/{quiz}/rate',   [QuizPlayController::class, 'rate'])->name('quiz.rate');
 
     // Friends
     Route::get('/friends',                        [FriendController::class, 'index'])->name('friends.index');

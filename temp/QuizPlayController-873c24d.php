@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers;
 
@@ -19,7 +19,7 @@ class QuizPlayController extends Controller
         $quiz->load(['questions' => fn($q) => $q->orderBy('quiz_question.question_order')]);
 
         if ($quiz->questions->isEmpty()) {
-            return redirect()->back()->with('error', 'Ten quiz nie ma jeszcze pytań.');
+            return redirect()->back()->with('error', 'Ten quiz nie ma jeszcze pyta┼ä.');
         }
 
         return view('quiz-play', compact('quiz'));
@@ -28,11 +28,8 @@ class QuizPlayController extends Controller
     public function submit(Request $request, Quiz $quiz)
     {
         $request->validate([
-            'answers'    => 'required|array',
-            'time_spent' => 'nullable|integer|min:0',
+            'answers' => 'required|array',
         ]);
-
-        $timeSpent = max(0, (int) $request->input('time_spent', 0));
 
         $quiz->load(['questions' => fn($q) => $q->orderBy('quiz_question.question_order')]);
 
@@ -84,7 +81,6 @@ class QuizPlayController extends Controller
                 'user_id'      => Auth::id(),
                 'score_points' => $scorePoints,
                 'max_points'   => $maxPoints,
-                'started_at'   => now()->subSeconds($timeSpent),
                 'finished_at'  => now(),
             ]);
         }
@@ -120,6 +116,6 @@ class QuizPlayController extends Controller
             'ratings_count'  => $count,
         ]);
 
-        return redirect()->route('home')->with('success', 'Dzięki za ocenę!');
+        return redirect()->route('home')->with('success', 'Dzi─Öki za ocen─Ö!');
     }
 }
