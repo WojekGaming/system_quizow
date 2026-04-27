@@ -623,7 +623,7 @@
                 Ostatnio dodane <span>quizy</span>
             @endif
         </h2>
-        <span class="section-meta">Znaleziono <strong>{{ $quizzes->total() }}</strong> quizów</span>
+        <span class="section-meta">Wyświetlanych <strong>{{ count($quizzes) }}</strong> quizów</span>
     </div>
 
     <div class="quiz-grid">
@@ -665,8 +665,6 @@
             </div>
         @endforelse
     </div>
-
-    <div class="pag">{{ $quizzes->withQueryString()->links() }}</div>
 
 </section>
 

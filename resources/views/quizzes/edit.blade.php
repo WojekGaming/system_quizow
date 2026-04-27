@@ -140,7 +140,7 @@
 {{-- Navbar --}}
 <nav class="app-nav">
     <div class="app-nav__inner">
-        <a href="{{ route('dashboard') }}" class="app-nav__logo">
+        <a href="{{ url('/') }}" class="app-nav__logo">
             <div class="app-nav__logo-icon">⚡</div>
             <div class="app-nav__logo-text">Quiz<span>zies</span></div>
         </a>

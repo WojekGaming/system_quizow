@@ -18,6 +18,7 @@
 
 <form method="POST" action="{{ route('quiz.submit', $quiz) }}" id="quizForm" style="width:min(720px,100%);">
 @csrf
+<input type="hidden" name="time_spent" id="timeSpentInput" value="0">
 <div id="answersContainer"></div>
 
 @php $questions = $quiz->questions; $total = $questions->count(); @endphp
@@ -39,8 +40,12 @@
 <div class="question-slide" id="slide-{{ $i }}" style="{{ $i > 0 ? 'display:none;' : '' }}">
 
     {{-- Header --}}
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
         <span style="color:#ff6b00;font-weight:700;font-size:14px;letter-spacing:.2px;">{{ $quiz->title }}</span>
+        <div style="text-align:center;min-width:140px;">
+            <div style="color:rgba(255,255,255,0.4);font-size:12px;letter-spacing:.15px;">Czas rozwiązywania</div>
+            <div id="timerDisplay" style="color:#fff;font-size:16px;font-weight:800;">00:00</div>
+        </div>
         <span style="color:rgba(255,255,255,0.4);font-size:13px;">Pytanie {{ $i + 1 }} / {{ $total }}</span>
     </div>
 
@@ -140,6 +145,27 @@
 
 <script>
 const selected = {};
+let startTime = Date.now();
+let timerInterval;
+
+function formatDuration(seconds) {
+    const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${secs}`;
+}
+
+function updateTimer() {
+    const elapsed = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
+    const display = document.getElementById('timerDisplay');
+    const input = document.getElementById('timeSpentInput');
+    if (display) display.textContent = formatDuration(elapsed);
+    if (input) input.value = elapsed;
+}
+
+window.addEventListener('load', () => {
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+});
 
 function selectAnswer(el) {
     const qid  = el.dataset.qid;
@@ -170,6 +196,10 @@ function goTo(i) {
 }
 
 function prepareSubmit() {
+    updateTimer();
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
     const container = document.getElementById('answersContainer');
     container.innerHTML = '';
     for (const [qid, idxArr] of Object.entries(selected)) {

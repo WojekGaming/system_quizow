@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Friendship;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -92,5 +93,20 @@ class User extends Authenticatable implements MustVerifyEmail
                   ->where('requester_id', $this->id)
                   ->where('status', 'accepted');
             });
+    }
+
+    public function acceptedFriendsCount(): int
+    {
+        return Friendship::where(function ($q) {
+                $q->where('requester_id', $this->id)
+                  ->orWhere('addressee_id', $this->id);
+            })
+            ->where('status', 'accepted')
+            ->count();
+    }
+
+    public function canAddFriend(): bool
+    {
+        return $this->acceptedFriendsCount() < 10;
     }
 }

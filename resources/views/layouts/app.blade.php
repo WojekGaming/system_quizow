@@ -20,7 +20,7 @@
     <nav class="app-nav">
         <div class="app-nav__inner">
 
-            <a href="{{ route('dashboard') }}" class="app-nav__logo">
+            <a href="{{ url('/') }}" class="app-nav__logo">
                 <div class="app-nav__logo-icon">⚡</div>
                 <span class="app-nav__logo-text">Quizz<span>ies</span></span>
             </a>

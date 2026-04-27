@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\QuizRating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,7 +29,10 @@ class QuizPlayController extends Controller
     {
         $request->validate([
             'answers' => 'required|array',
+            'time_spent' => 'nullable|integer|min:0',
         ]);
+
+        $timeSpent = max(0, (int) $request->input('time_spent', 0));
 
         $quiz->load(['questions' => fn($q) => $q->orderBy('quiz_question.question_order')]);
 
@@ -81,12 +85,42 @@ class QuizPlayController extends Controller
                 'user_id'      => Auth::id(),
                 'score_points' => $scorePoints,
                 'max_points'   => $maxPoints,
+                'started_at'   => now()->subSeconds($timeSpent),
                 'finished_at'  => now(),
             ]);
         }
 
         $percentage = $maxPoints > 0 ? round(($scorePoints / $maxPoints) * 100) : 0;
 
-        return view('quiz-result', compact('quiz', 'results', 'scorePoints', 'maxPoints', 'percentage'));
+        $currentRating = Auth::check()
+            ? QuizRating::where('quiz_id', $quiz->id)
+                ->where('user_id', Auth::id())
+                ->value('rating')
+            : null;
+
+        return view('quiz-result', compact('quiz', 'results', 'scorePoints', 'maxPoints', 'percentage', 'timeSpent', 'currentRating'));
+    }
+
+    public function rate(Request $request, Quiz $quiz)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:6',
+        ]);
+
+        $rating = QuizRating::updateOrCreate([
+            'quiz_id' => $quiz->id,
+            'user_id' => Auth::id(),
+        ], [
+            'rating' => $request->input('rating'),
+        ]);
+
+        $quiz->average_rating = round($quiz->ratings()->avg('rating'), 2) ?: 0.00;
+        $quiz->ratings_count = $quiz->ratings()->count();
+        $quiz->save();
+
+        return response()->json([
+            'message' => 'Ocena zapisana',
+            'rating' => $rating->rating,
+        ]);
     }
 }

@@ -66,6 +66,14 @@ class FriendController extends Controller
     {
         $me = Auth::user();
 
+        if (!$me->canAddFriend()) {
+            return back()->with('error', 'Masz już maksymalną liczbę 10 znajomych.');
+        }
+
+        if (!$user->canAddFriend()) {
+            return back()->with('error', 'Użytkownik ma już maksymalną liczbę 10 znajomych.');
+        }
+
         // Check not already friends or pending
         $exists = Friendship::where(function ($q) use ($me, $user) {
             $q->where('requester_id', $me->id)->where('addressee_id', $user->id);
@@ -87,6 +95,17 @@ class FriendController extends Controller
     public function accept(Friendship $friendship)
     {
         abort_if($friendship->addressee_id !== Auth::id(), 403);
+
+        $requester = User::find($friendship->requester_id);
+        $addressee = Auth::user();
+
+        if (!$requester || !$requester->canAddFriend()) {
+            return back()->with('error', 'Użytkownik nie może mieć więcej niż 10 znajomych.');
+        }
+
+        if (!$addressee->canAddFriend()) {
+            return back()->with('error', 'Masz już maksymalną liczbę 10 znajomych.');
+        }
 
         $friendship->update([
             'status'      => 'accepted',
