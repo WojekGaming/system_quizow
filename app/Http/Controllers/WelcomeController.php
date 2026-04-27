@@ -48,9 +48,16 @@ class WelcomeController extends Controller
             default:               $query->latest();
         }
 
-        $quizzes    = $query->take(10)->get();
+        $quizzes    = $query->paginate(12)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
-        return view('welcome', compact('quizzes', 'categories'));
+        $latestQuizzes = Quiz::where('is_active', 1)
+            ->with(['user', 'category'])
+            ->withCount('attempts')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('welcome', compact('quizzes', 'categories', 'latestQuizzes'));
     }
 }

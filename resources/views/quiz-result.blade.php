@@ -26,43 +26,12 @@
         <div style="font-size:18px;font-weight:600;color:#fff;margin-bottom:6px;">
             {{ $scorePoints }} / {{ $maxPoints }} poprawnych odpowiedzi
         </div>
-        @php
-            $formattedTime = $timeSpent >= 3600
-                ? gmdate('H:i:s', $timeSpent)
-                : gmdate('i:s', $timeSpent);
-        @endphp
-        <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:6px;">
-            Czas rozwiązania: {{ $formattedTime }}
-        </div>
         <div style="font-size:14px;color:rgba(255,255,255,0.4);">
             @if($percentage >= 70) Świetny wynik! 🎉
             @elseif($percentage >= 40) Nieźle, ale można lepiej 💪
             @else Spróbuj jeszcze raz 📚
             @endif
         </div>
-    </div>
-
-    {{-- Rating --}}
-    <div class="dash-panel" style="margin-bottom:1.5rem;">
-        <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:10px;">Oceń quiz</div>
-
-        @if(Auth::check())
-            <form id="quizRatingForm" action="{{ route('quiz.rate', $quiz) }}" method="POST" style="display:flex;flex-direction:column;gap:12px;align-items:center;">
-                @csrf
-                <input type="hidden" name="rating" id="ratingInput" value="{{ $currentRating ?? 0 }}">
-                <div id="ratingStars" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-                    @for($value = 1; $value <= 6; $value++)
-                        <button type="button" class="rating-star" data-value="{{ $value }}" style="padding:10px 14px;border-radius:50%;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;min-width:48px;text-align:center;">
-                            {{ $value }}★
-                        </button>
-                    @endfor
-                </div>
-                <button type="submit" id="ratingSubmit" style="padding:11px 20px;border-radius:11px;border:none;background:#ff6b00;color:#fff;font-weight:700;cursor:pointer;transition:.2s;">Zapisz ocenę</button>
-                <div id="ratingMessage" style="font-size:13px;color:rgba(255,255,255,0.6);"></div>
-            </form>
-        @else
-            <div style="font-size:14px;color:rgba(255,255,255,0.6);">Zaloguj się, aby zostawić ocenę quizu.</div>
-        @endif
     </div>
 
     {{-- Results --}}
@@ -113,6 +82,62 @@
         @endforeach
     </div>
 
+        @auth
+        <div class="dash-panel" style="text-align:center;margin-bottom:1.5rem;">
+            <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;">
+                Oceń ten quiz
+            </div>
+
+            <div style="font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:16px;">
+                Skala ocen: 1–6
+            </div>
+
+            @if(session('success'))
+                <div style="
+                    margin-bottom:14px;
+                    padding:10px 14px;
+                    border-radius:10px;
+                    background:rgba(46,158,91,0.12);
+                    border:1px solid rgba(46,158,91,0.3);
+                    color:#4ade80;
+                    font-size:14px;
+                    font-weight:600;
+                ">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('quiz.rate', $quiz) }}">
+                @csrf
+
+                <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+                    @for($i = 1; $i <= 6; $i++)
+                        <button
+                            type="submit"
+                            name="rating"
+                            value="{{ $i }}"
+                            style="
+                                width:48px;height:48px;
+                                border-radius:12px;
+                                border:1px solid rgba(255,255,255,0.12);
+                                background:rgba(255,255,255,0.05);
+                                color:#fff;
+                                font-size:16px;
+                                font-weight:700;
+                                font-family:'Outfit',sans-serif;
+                                cursor:pointer;
+                                transition:.2s;
+                            "
+                            onmouseover="this.style.background='rgba(255,107,0,0.14)';this.style.borderColor='rgba(255,107,0,0.45)'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.12)'"
+                        >
+                            {{ $i }}
+                        </button>
+                    @endfor
+                </div>
+            </form>
+        </div>
+    @endauth
     {{-- Actions --}}
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <a href="{{ route('quiz.show', $quiz) }}" class="dash-cta-btn">🔄 Zagraj ponownie</a>
@@ -130,79 +155,6 @@
 
 </div>
 </div>
-
-<script>
-(function() {
-    const stars = document.querySelectorAll('.rating-star');
-    const ratingInput = document.getElementById('ratingInput');
-    const ratingMessage = document.getElementById('ratingMessage');
-    const ratingForm = document.getElementById('quizRatingForm');
-
-    if (!ratingForm) {
-        return;
-    }
-
-    const selectedValue = parseInt(ratingInput.value, 10) || 0;
-    let currentRating = selectedValue;
-
-    function updateStars(value) {
-        stars.forEach(star => {
-            const starValue = parseInt(star.dataset.value, 10);
-            if (starValue <= value) {
-                star.style.background = '#ff6b00';
-                star.style.color = '#111';
-                star.style.borderColor = '#ff6b00';
-            } else {
-                star.style.background = 'rgba(255,255,255,0.05)';
-                star.style.color = '#fff';
-                star.style.borderColor = 'rgba(255,255,255,0.12)';
-            }
-        });
-    }
-
-    updateStars(currentRating);
-
-    stars.forEach(star => {
-        star.addEventListener('click', () => {
-            currentRating = parseInt(star.dataset.value, 10);
-            ratingInput.value = currentRating;
-            updateStars(currentRating);
-            ratingMessage.textContent = '';
-        });
-    });
-
-    ratingForm.addEventListener('submit', event => {
-        event.preventDefault();
-        if (!currentRating || currentRating < 1) {
-            ratingMessage.textContent = 'Wybierz ocenę od 1 do 6.';
-            return;
-        }
-
-        const formData = new FormData(ratingForm);
-        fetch(ratingForm.action, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.rating) {
-                ratingMessage.textContent = 'Dziękujemy za ocenę!';
-                ratingMessage.style.color = '#a3e635';
-            } else {
-                ratingMessage.textContent = 'Nie udało się zapisać oceny.';
-                ratingMessage.style.color = '#f87171';
-            }
-        })
-        .catch(() => {
-            ratingMessage.textContent = 'Wystąpił błąd przy zapisie oceny.';
-            ratingMessage.style.color = '#f87171';
-        });
-    });
-})();
-</script>
 
 </body>
 </html>

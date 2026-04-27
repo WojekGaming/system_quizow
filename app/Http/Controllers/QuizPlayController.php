@@ -29,10 +29,7 @@ class QuizPlayController extends Controller
     {
         $request->validate([
             'answers' => 'required|array',
-            'time_spent' => 'nullable|integer|min:0',
         ]);
-
-        $timeSpent = max(0, (int) $request->input('time_spent', 0));
 
         $quiz->load(['questions' => fn($q) => $q->orderBy('quiz_question.question_order')]);
 
@@ -70,35 +67,27 @@ class QuizPlayController extends Controller
             }
 
             $results[] = [
-                'question'      => $question->content,
-                'user_answer'   => $userAnswer,
-                'correct'       => $correctAnswer,
-                'is_correct'    => $isCorrect,
-                'answers'       => $answers,
+                'question'    => $question->content,
+                'user_answer' => $userAnswer,
+                'correct'     => $correctAnswer,
+                'is_correct'  => $isCorrect,
+                'answers'     => $answers,
             ];
         }
 
-        // Save attempt if logged in
         if (Auth::check()) {
             QuizAttempt::create([
                 'quiz_id'      => $quiz->id,
                 'user_id'      => Auth::id(),
                 'score_points' => $scorePoints,
                 'max_points'   => $maxPoints,
-                'started_at'   => now()->subSeconds($timeSpent),
                 'finished_at'  => now(),
             ]);
         }
 
         $percentage = $maxPoints > 0 ? round(($scorePoints / $maxPoints) * 100) : 0;
 
-        $currentRating = Auth::check()
-            ? QuizRating::where('quiz_id', $quiz->id)
-                ->where('user_id', Auth::id())
-                ->value('rating')
-            : null;
-
-        return view('quiz-result', compact('quiz', 'results', 'scorePoints', 'maxPoints', 'percentage', 'timeSpent', 'currentRating'));
+        return view('quiz-result', compact('quiz', 'results', 'scorePoints', 'maxPoints', 'percentage'));
     }
 
     public function rate(Request $request, Quiz $quiz)
@@ -107,20 +96,26 @@ class QuizPlayController extends Controller
             'rating' => 'required|integer|min:1|max:6',
         ]);
 
-        $rating = QuizRating::updateOrCreate([
-            'quiz_id' => $quiz->id,
-            'user_id' => Auth::id(),
-        ], [
-            'rating' => $request->input('rating'),
+        $userId = Auth::id();
+
+        QuizRating::updateOrCreate(
+            [
+                'quiz_id' => $quiz->id,
+                'user_id' => $userId,
+            ],
+            [
+                'rating' => $request->rating,
+            ]
+        );
+
+        $avg = QuizRating::where('quiz_id', $quiz->id)->avg('rating');
+        $count = QuizRating::where('quiz_id', $quiz->id)->count();
+
+        $quiz->update([
+            'average_rating' => $avg,
+            'ratings_count'  => $count,
         ]);
 
-        $quiz->average_rating = round($quiz->ratings()->avg('rating'), 2) ?: 0.00;
-        $quiz->ratings_count = $quiz->ratings()->count();
-        $quiz->save();
-
-        return response()->json([
-            'message' => 'Ocena zapisana',
-            'rating' => $rating->rating,
-        ]);
+        return redirect()->route('home')->with('success', 'Dzięki za ocenę!');
     }
 }

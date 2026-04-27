@@ -56,8 +56,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Stats
     Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 
-    Route::post('/quiz/{quiz}/rate', [QuizPlayController::class, 'rate'])->name('quiz.rate');
-
     // Profile
     Route::get('/profile',         [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',       [ProfileController::class, 'update'])->name('profile.update');

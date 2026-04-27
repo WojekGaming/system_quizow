@@ -592,6 +592,27 @@
 {{-- ══ CONTENT ══ --}}
 <section class="content" id="quizzes" style="{{ auth()->check() ? 'padding-top:110px;' : '' }}">
 
+    @if(session('success'))
+    <div style="
+        max-width:1280px;
+        margin:0 auto 20px;
+        padding:14px 18px;
+        border-radius:14px;
+        background:rgba(46,158,91,0.08);
+        border:1px solid rgba(46,158,91,0.25);
+        color:#4ade80;
+        font-size:14px;
+        font-weight:600;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        backdrop-filter:blur(10px);
+    ">
+        <span style="font-size:18px;">✔</span>
+        {{ session('success') }}
+    </div>
+    @endif
+
     @php
         $activeFilters = array_filter([
             'search'     => request('search') ? '🔍 '.request('search') : null,
@@ -623,10 +644,16 @@
                 Ostatnio dodane <span>quizy</span>
             @endif
         </h2>
-        <span class="section-meta">Wyświetlanych <strong>{{ count($quizzes) }}</strong> quizów</span>
+
+        @if(request()->hasAny(['search','category','author','premium','min_rating','date_from','date_to']))
+            <span class="section-meta">Znaleziono <strong>{{ $quizzes->total() }}</strong> quizów</span>
+        @else
+            <span class="section-meta">Pokazano <strong>{{ $latestQuizzes->count() }}</strong> z 10 najnowszych</span>
+        @endif
     </div>
 
     <div class="quiz-grid">
+    @if(request()->hasAny(['search','category','author','premium','min_rating','date_from','date_to']))
         @forelse($quizzes as $i => $quiz)
             <div class="qcard" style="animation-delay:{{ $i * 0.05 }}s">
                 <div class="qcard__badges">
@@ -664,7 +691,49 @@
                 <a href="{{ url('/') }}">Pokaż wszystkie quizy →</a>
             </div>
         @endforelse
-    </div>
+    @else
+        @forelse($latestQuizzes as $i => $quiz)
+            <div class="qcard" style="animation-delay:{{ $i * 0.05 }}s">
+                <div class="qcard__badges">
+                    @if($quiz->is_premium)<span class="badge badge-premium">⭐ Premium</span>@endif
+                    @if($quiz->category)<span class="badge badge-category">{{ $quiz->category->name }}</span>@endif
+                </div>
+                <h3 class="qcard__title">{{ $quiz->title }}</h3>
+                @if($quiz->description)<p class="qcard__desc">{{ $quiz->description }}</p>@endif
+                <div class="qcard__meta">
+                    <span class="qcard__meta-item"><span class="ico">📋</span>{{ $quiz->questions_count }} pytań</span>
+                    <span class="qcard__meta-item"><span class="ico">▶</span>{{ number_format($quiz->attempts_count ?? 0) }} podejść</span>
+                    @if($quiz->average_rating > 0)
+                        <span class="qcard__meta-item qcard__rating">
+                            <span class="stars">
+                                @for($s=1;$s<=5;$s++)
+                                    <span class="star {{ $s<=round($quiz->average_rating)?'on':'off' }}">★</span>
+                                @endfor
+                            </span>
+                            <span class="rating-val">{{ number_format($quiz->average_rating,1) }}</span>
+                        </span>
+                    @endif
+                </div>
+                <div class="qcard__foot">
+                    <div class="qcard__author">
+                        <div class="author-av">{{ strtoupper(substr($quiz->user->name ?? 'A',0,1)) }}</div>
+                        <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
+                    </div>
+                    <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj →</a>
+                </div>
+            </div>
+        @empty
+            <div class="empty">
+                <div class="empty__icon">📭</div>
+                <p>Nie ma jeszcze żadnych quizów.</p>
+            </div>
+        @endforelse
+    @endif
+</div>
+
+@if(request()->hasAny(['search','category','author','premium','min_rating','date_from','date_to']))
+    <div class="pag">{{ $quizzes->withQueryString()->links() }}</div>
+@endif
 
 </section>
 

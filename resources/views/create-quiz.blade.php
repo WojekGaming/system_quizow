@@ -24,14 +24,12 @@
             min-height: 100vh;
         }
 
-        /* ── Layout ── */
         .qb-app {
             min-height: 100vh;
             display: grid;
             grid-template-columns: 340px 1fr;
         }
 
-        /* ── Sidebar ── */
         .qb-sidebar {
             background: #202427;
             border-right: 1px solid rgba(255,255,255,0.08);
@@ -102,7 +100,6 @@
         .qb-textarea { resize: vertical; min-height: 80px; }
         .qb-select option { background: #2a2f33; }
 
-        /* ── Questions list ── */
         .questions-list { display: flex; flex-direction: column; gap: 8px; }
 
         .question-item {
@@ -123,7 +120,6 @@
         .q-state.saved { color: #4ade80; }
         .q-name { font-size: 13px; line-height: 1.35; color: rgba(255,255,255,0.8); }
 
-        /* ── Buttons ── */
         .qb-btn {
             height: 40px;
             padding: 0 16px;
@@ -157,12 +153,10 @@
         .qb-btn-danger:hover { background: rgba(214,69,69,0.25); }
         .qb-btn-full { width: 100%; }
 
-        /* ── Toggle row ── */
         .qb-toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
         .qb-toggle-row label { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; text-transform: none; letter-spacing: 0; }
         .qb-toggle-row input[type=checkbox] { accent-color: var(--cta); width: 16px; height: 16px; }
 
-        /* ── Workspace ── */
         .qb-workspace {
             padding: 28px;
             display: flex;
@@ -181,7 +175,6 @@
         .qb-workspace-title h2 { margin: 0; font-size: 26px; font-weight: 700; color: #fff; }
         .qb-workspace-title p { margin: 5px 0 0; color: var(--border); font-size: 14px; }
 
-        /* ── Editor ── */
         .qb-editor {
             background: var(--panel);
             border: 1px solid rgba(255,255,255,0.08);
@@ -207,7 +200,6 @@
 
         .qb-editor-block h3 { margin: 0 0 14px; font-size: 17px; font-weight: 600; }
 
-        /* ── Upload zone ── */
         .upload-zone {
             min-height: 220px;
             border: 2px dashed #4b5257;
@@ -229,7 +221,6 @@
         .upload-placeholder { color: var(--border); line-height: 1.5; max-width: 260px; font-size: 13px; }
         .small-note { font-size: 12px; color: var(--border); }
 
-        /* ── Answers ── */
         .answers-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0,1fr));
@@ -270,7 +261,6 @@
 
         .qb-editor-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
 
-        /* ── Toast ── */
         .qb-toast {
             position: fixed; bottom: 24px; right: 24px;
             background: #2a2f33;
@@ -286,7 +276,6 @@
         }
         .qb-toast.show { opacity: 1; transform: translateY(0); }
 
-        /* ── Responsive ── */
         @media (max-width: 1100px) {
             .qb-app { grid-template-columns: 1fr; }
             .qb-sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -305,22 +294,18 @@
 
 <div class="qb-app">
 
-    {{-- ══════════════════ SIDEBAR ══════════════════ --}}
     <aside class="qb-sidebar">
-
         <div class="qb-brand">
             <div class="qb-brand-icon">⚡</div>
             <div class="qb-brand-text">Quiz<span>Builder</span></div>
         </div>
 
-        {{-- Quiz settings --}}
         <div class="side-block">
             <h2>Ustawienia quizu</h2>
 
             <div class="qb-field">
                 <label>Tytuł quizu *</label>
-                <input id="quizTitle" class="qb-control" type="text"
-                       placeholder="np. Historia Polski" maxlength="150">
+                <input id="quizTitle" class="qb-control" type="text" placeholder="np. Historia Polski" maxlength="150">
             </div>
 
             <div class="qb-field">
@@ -335,8 +320,7 @@
 
             <div class="qb-field">
                 <label>Opis</label>
-                <textarea id="quizDesc" class="qb-textarea"
-                          placeholder="Krótki opis quizu..."></textarea>
+                <textarea id="quizDesc" class="qb-textarea" placeholder="Krótki opis quizu..."></textarea>
             </div>
 
             <div class="qb-toggle-row">
@@ -349,10 +333,8 @@
             </div>
         </div>
 
-        {{-- Questions list --}}
         <div class="side-block">
             <h2>Pytania</h2>
-
             <div class="questions-list" id="questionsList"></div>
 
             <div style="margin-top:12px;">
@@ -366,12 +348,9 @@
                 </a>
             </div>
         </div>
-
     </aside>
 
-    {{-- ══════════════════ WORKSPACE ══════════════════ --}}
     <main class="qb-workspace">
-
         <div class="qb-workspace-header">
             <div class="qb-workspace-title">
                 <h2 id="workspaceTitle">Edytujesz: Pytanie 1</h2>
@@ -383,17 +362,12 @@
         </div>
 
         <section class="qb-editor">
-
             <div class="qb-editor-grid">
-
-                {{-- Question text --}}
                 <div class="qb-editor-block">
                     <h3>Treść pytania</h3>
                     <div class="qb-field">
                         <label>Pytanie *</label>
-                        <textarea id="questionText" class="qb-textarea"
-                                  placeholder="Wpisz treść pytania..."
-                                  style="min-height:110px;"></textarea>
+                        <textarea id="questionText" class="qb-textarea" placeholder="Wpisz treść pytania..." style="min-height:110px;"></textarea>
                     </div>
                     <div class="qb-field" style="margin-top:4px;">
                         <label>Typ pytania</label>
@@ -408,7 +382,6 @@
                     </div>
                 </div>
 
-                {{-- Image upload --}}
                 <div class="qb-editor-block">
                     <h3>Zdjęcie (opcjonalne)</h3>
                     <div class="upload-zone" id="uploadZone">
@@ -433,16 +406,13 @@
                         <div class="small-note" id="fileName">Nie wybrano pliku</div>
                     </div>
                 </div>
-
             </div>
 
-            {{-- Answers --}}
             <div class="qb-editor-block">
                 <h3>Odpowiedzi</h3>
                 <div class="answers-grid" id="answersGrid"></div>
             </div>
 
-            {{-- Actions --}}
             <div class="qb-editor-actions">
                 <button class="qb-btn qb-btn-danger" type="button" id="deleteQuestionBtn">
                     🗑 Usuń pytanie
@@ -451,29 +421,13 @@
                     ✓ Zapisz pytanie
                 </button>
             </div>
-
         </section>
     </main>
 </div>
 
-{{-- Toast notification --}}
 <div class="qb-toast" id="toast"></div>
 
-{{-- Hidden submit form --}}
-<form id="submitForm" method="POST" action="{{ route('quizzes.store') }}" style="display:none;">
-    @csrf
-    <input type="hidden" name="title"          id="f_title">
-    <input type="hidden" name="description"    id="f_desc">
-    <input type="hidden" name="category_id"    id="f_category">
-    <input type="hidden" name="is_premium"     id="f_premium">
-    <input type="hidden" name="is_active"      id="f_active">
-    <input type="hidden" name="questions_json" id="f_questions">
-</form>
-
 <script>
-// ─────────────────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────────────────
 let questions = [{
     id: 1,
     text: '',
@@ -482,25 +436,19 @@ let questions = [{
     correct: []
 }];
 let currentQ = 0;
-let questionImages = {}; // questionId -> File
+let questionImages = {};
 
-// ─────────────────────────────────────────────────────
-//  DOM REFS
-// ─────────────────────────────────────────────────────
-const questionsList     = document.getElementById('questionsList');
-const workspaceTitle    = document.getElementById('workspaceTitle');
-const questionText      = document.getElementById('questionText');
-const questionType      = document.getElementById('questionType');
-const answersGrid       = document.getElementById('answersGrid');
-const imageInput        = document.getElementById('imageInput');
-const previewImg        = document.getElementById('previewImg');
+const questionsList = document.getElementById('questionsList');
+const workspaceTitle = document.getElementById('workspaceTitle');
+const questionText = document.getElementById('questionText');
+const questionType = document.getElementById('questionType');
+const answersGrid = document.getElementById('answersGrid');
+const imageInput = document.getElementById('imageInput');
+const previewImg = document.getElementById('previewImg');
 const uploadPlaceholder = document.getElementById('uploadPlaceholder');
-const fileName          = document.getElementById('fileName');
-const toast             = document.getElementById('toast');
+const fileName = document.getElementById('fileName');
+const toast = document.getElementById('toast');
 
-// ─────────────────────────────────────────────────────
-//  TOAST
-// ─────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg, color = '#ff6b00') {
     clearTimeout(toastTimer);
@@ -510,9 +458,6 @@ function showToast(msg, color = '#ff6b00') {
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
-// ─────────────────────────────────────────────────────
-//  RENDER SIDEBAR LIST
-// ─────────────────────────────────────────────────────
 function renderList() {
     questionsList.innerHTML = '';
     questions.forEach((q, i) => {
@@ -535,15 +480,12 @@ function renderList() {
     });
 }
 
-// ─────────────────────────────────────────────────────
-//  RENDER ANSWERS
-// ─────────────────────────────────────────────────────
 function renderAnswers() {
     const q = questions[currentQ];
     answersGrid.innerHTML = '';
-    const letters   = ['A', 'B', 'C', 'D'];
-    const count     = q.type === 'true_false' ? 2 : 4;
-    const tfLabels  = ['Prawda', 'Fałsz'];
+    const letters = ['A', 'B', 'C', 'D'];
+    const count = q.type === 'true_false' ? 2 : 4;
+    const tfLabels = ['Prawda', 'Fałsz'];
     const inputType = q.type === 'multiple_choice' ? 'checkbox' : 'radio';
 
     for (let i = 0; i < count; i++) {
@@ -568,7 +510,6 @@ function renderAnswers() {
         answersGrid.appendChild(tile);
     }
 
-    // Correct answer change
     answersGrid.querySelectorAll('input[name=correctAnswer]').forEach(inp => {
         inp.addEventListener('change', () => {
             if (q.type === 'multiple_choice') {
@@ -581,7 +522,6 @@ function renderAnswers() {
         });
     });
 
-    // Answer text change
     answersGrid.querySelectorAll('input[type=text]').forEach(inp => {
         inp.addEventListener('input', () => {
             q.answers[parseInt(inp.dataset.idx)] = inp.value;
@@ -589,27 +529,23 @@ function renderAnswers() {
     });
 }
 
-// ─────────────────────────────────────────────────────
-//  SWITCH TO QUESTION
-// ─────────────────────────────────────────────────────
 function switchTo(i) {
     currentQ = i;
-    const q  = questions[i];
+    const q = questions[i];
 
     questionText.value = q.text;
     questionType.value = q.type;
     workspaceTitle.textContent = `Edytujesz: Pytanie ${i + 1}`;
 
-    // Image preview
     if (questionImages[q.id]) {
         const url = URL.createObjectURL(questionImages[q.id]);
         previewImg.src = url;
-        previewImg.style.display    = 'block';
+        previewImg.style.display = 'block';
         uploadPlaceholder.style.display = 'none';
         fileName.textContent = questionImages[q.id].name;
     } else {
         previewImg.src = '';
-        previewImg.style.display    = 'none';
+        previewImg.style.display = 'none';
         uploadPlaceholder.style.display = 'block';
         fileName.textContent = 'Nie wybrano pliku';
     }
@@ -618,9 +554,6 @@ function switchTo(i) {
     renderList();
 }
 
-// ─────────────────────────────────────────────────────
-//  SAVE CURRENT STATE
-// ─────────────────────────────────────────────────────
 function saveCurrentToState() {
     const q = questions[currentQ];
     q.text = questionText.value.trim();
@@ -630,9 +563,6 @@ function saveCurrentToState() {
     });
 }
 
-// ─────────────────────────────────────────────────────
-//  ADD QUESTION
-// ─────────────────────────────────────────────────────
 document.getElementById('addQuestionBtn').addEventListener('click', () => {
     saveCurrentToState();
     questions.push({
@@ -646,9 +576,6 @@ document.getElementById('addQuestionBtn').addEventListener('click', () => {
     showToast('Dodano nowe pytanie');
 });
 
-// ─────────────────────────────────────────────────────
-//  DELETE QUESTION
-// ─────────────────────────────────────────────────────
 document.getElementById('deleteQuestionBtn').addEventListener('click', () => {
     if (questions.length === 1) {
         showToast('Quiz musi mieć co najmniej 1 pytanie', '#f87171');
@@ -660,9 +587,6 @@ document.getElementById('deleteQuestionBtn').addEventListener('click', () => {
     showToast('Pytanie usunięte');
 });
 
-// ─────────────────────────────────────────────────────
-//  SAVE QUESTION (validate)
-// ─────────────────────────────────────────────────────
 document.getElementById('saveQuestionBtn').addEventListener('click', () => {
     saveCurrentToState();
     const q = questions[currentQ];
@@ -678,9 +602,6 @@ document.getElementById('saveQuestionBtn').addEventListener('click', () => {
     showToast('✓ Pytanie zapisane', '#4ade80');
 });
 
-// ─────────────────────────────────────────────────────
-//  IMAGE UPLOAD
-// ─────────────────────────────────────────────────────
 document.getElementById('chooseImgBtn').addEventListener('click', () => imageInput.click());
 
 document.getElementById('uploadZone').addEventListener('click', (e) => {
@@ -691,7 +612,6 @@ imageInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 5MB limit
     if (file.size > 5 * 1024 * 1024) {
         showToast('Zdjęcie może mieć max 5MB!', '#f87171');
         imageInput.value = '';
@@ -702,7 +622,7 @@ imageInput.addEventListener('change', (e) => {
     const reader = new FileReader();
     reader.onload = ev => {
         previewImg.src = ev.target.result;
-        previewImg.style.display    = 'block';
+        previewImg.style.display = 'block';
         uploadPlaceholder.style.display = 'none';
         fileName.textContent = file.name;
     };
@@ -713,16 +633,13 @@ document.getElementById('removeImgBtn').addEventListener('click', () => {
     delete questionImages[questions[currentQ].id];
     imageInput.value = '';
     previewImg.src = '';
-    previewImg.style.display    = 'none';
+    previewImg.style.display = 'none';
     uploadPlaceholder.style.display = 'block';
     fileName.textContent = 'Nie wybrano pliku';
 });
 
-// ─────────────────────────────────────────────────────
-//  QUESTION TYPE CHANGE
-// ─────────────────────────────────────────────────────
 questionType.addEventListener('change', () => {
-    questions[currentQ].type    = questionType.value;
+    questions[currentQ].type = questionType.value;
     questions[currentQ].correct = [];
     if (questionType.value === 'true_false') {
         questions[currentQ].answers = ['Prawda', 'Fałsz', '', ''];
@@ -730,10 +647,7 @@ questionType.addEventListener('change', () => {
     renderAnswers();
 });
 
-// ─────────────────────────────────────────────────────
-//  SAVE QUIZ (submit)
-// ─────────────────────────────────────────────────────
-document.getElementById('saveQuizBtn').addEventListener('click', () => {
+document.getElementById('saveQuizBtn').addEventListener('click', async () => {
     saveCurrentToState();
 
     const title = document.getElementById('quizTitle').value.trim();
@@ -748,20 +662,43 @@ document.getElementById('saveQuizBtn').addEventListener('click', () => {
         return;
     }
 
-    // Fill hidden form
-    document.getElementById('f_title').value     = title;
-    document.getElementById('f_desc').value      = document.getElementById('quizDesc').value;
-    document.getElementById('f_category').value  = document.getElementById('quizCategory').value;
-    document.getElementById('f_premium').value   = document.getElementById('quizPremium').checked ? '1' : '0';
-    document.getElementById('f_active').value    = document.getElementById('quizActive').checked  ? '1' : '0';
-    document.getElementById('f_questions').value = JSON.stringify(questions);
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', document.getElementById('quizDesc').value);
+    formData.append('category_id', document.getElementById('quizCategory').value);
+    formData.append('is_premium', document.getElementById('quizPremium').checked ? '1' : '0');
+    formData.append('is_active', document.getElementById('quizActive').checked ? '1' : '0');
+    formData.append('questions_json', JSON.stringify(questions));
 
-    document.getElementById('submitForm').submit();
+    Object.entries(questionImages).forEach(([questionId, file]) => {
+        formData.append(`question_images[${questionId}]`, file);
+    });
+
+    try {
+        const response = await fetch("{{ route('quizzes.store') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error(text);
+            showToast('Błąd zapisu quizu!', '#f87171');
+            return;
+        }
+
+        showToast('Quiz zapisany!', '#4ade80');
+        window.location.href = "{{ route('quizzes.index') }}";
+    } catch (error) {
+        console.error(error);
+        showToast('Błąd połączenia z serwerem!', '#f87171');
+    }
 });
 
-// ─────────────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────────────
 switchTo(0);
 </script>
 
