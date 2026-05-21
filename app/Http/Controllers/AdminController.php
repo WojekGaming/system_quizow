@@ -21,36 +21,54 @@ class AdminController extends Controller
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
+
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
+
         if ($request->filled('user')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->user . '%')
                   ->orWhere('email', 'like', '%' . $request->user . '%');
             });
         }
+
         if ($request->filled('premium')) {
             $query->where('is_premium', $request->premium);
         }
+
         if ($request->filled('min_questions')) {
             $query->where('questions_count', '>=', $request->min_questions);
         }
+
         if ($request->filled('min_rating')) {
             $query->where('average_rating', '>=', $request->min_rating);
         }
+
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
+
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
         switch ($request->get('sort', 'newest')) {
-            case 'oldest':    $query->oldest(); break;
-            case 'questions': $query->orderByDesc('questions_count'); break;
-            case 'rating':    $query->orderByDesc('average_rating'); break;
-            default:          $query->latest();
+            case 'oldest':
+                $query->oldest();
+                break;
+
+            case 'questions':
+                $query->orderByDesc('questions_count');
+                break;
+
+            case 'rating':
+                $query->orderByDesc('average_rating');
+                break;
+
+            default:
+                $query->latest();
+                break;
         }
 
         $quizzes    = $query->paginate(20)->withQueryString();
@@ -63,19 +81,104 @@ class AdminController extends Controller
     // ── Tab: Reports ──────────────────────────────────────
     public function reports(Request $request)
     {
-        $query = QuizReport::with(['quiz.category', 'reportedBy']);
+        $query = QuizReport::with(['quiz.category', 'quiz.user', 'reportedBy']);
 
         if ($request->filled('search')) {
-            $query->whereHas('quiz', fn($q) => $q->where('title', 'like', '%' . $request->search . '%'));
+            $query->whereHas('quiz', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%');
+            });
         }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+
         if ($request->filled('category')) {
-            $query->whereHas('quiz', fn($q) => $q->where('category_id', $request->category));
+            $query->whereHas('quiz', function ($q) use ($request) {
+                $q->where('category_id', $request->category);
+            });
         }
 
-        $reports    = $query->latest()->paginate(20)->withQueryString();
+        if ($request->filled('user')) {
+            $query->whereHas('quiz.user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->user . '%')
+                  ->orWhere('email', 'like', '%' . $request->user . '%');
+            });
+        }
+
+        if ($request->filled('premium')) {
+            $query->whereHas('quiz', function ($q) use ($request) {
+                $q->where('is_premium', $request->premium);
+            });
+        }
+
+        if ($request->filled('min_questions')) {
+            $query->whereHas('quiz', function ($q) use ($request) {
+                $q->where('questions_count', '>=', $request->min_questions);
+            });
+        }
+
+        if ($request->filled('min_rating')) {
+            $query->whereHas('quiz', function ($q) use ($request) {
+                $q->where('average_rating', '>=', $request->min_rating);
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereHas('quiz', function ($q) use ($request) {
+                $q->whereDate('created_at', '>=', $request->date_from);
+            });
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereHas('quiz', function ($q) use ($request) {
+                $q->whereDate('created_at', '<=', $request->date_to);
+            });
+        }
+
+        switch ($request->get('sort', 'newest')) {
+            case 'oldest':
+                $query->oldest();
+                break;
+
+            case 'quiz_newest':
+                $query->orderByDesc(
+                    Quiz::select('created_at')
+                        ->whereColumn('quizzes.id', 'quiz_reports.quiz_id')
+                        ->limit(1)
+                );
+                break;
+
+            case 'quiz_oldest':
+                $query->orderBy(
+                    Quiz::select('created_at')
+                        ->whereColumn('quizzes.id', 'quiz_reports.quiz_id')
+                        ->limit(1)
+                );
+                break;
+
+            case 'questions':
+                $query->orderByDesc(
+                    Quiz::select('questions_count')
+                        ->whereColumn('quizzes.id', 'quiz_reports.quiz_id')
+                        ->limit(1)
+                );
+                break;
+
+            case 'rating':
+                $query->orderByDesc(
+                    Quiz::select('average_rating')
+                        ->whereColumn('quizzes.id', 'quiz_reports.quiz_id')
+                        ->limit(1)
+                );
+                break;
+
+            default:
+                $query->latest();
+                break;
+        }
+
+        $reports    = $query->paginate(20)->withQueryString();
         $categories = Category::orderBy('name')->get();
         $tab        = 'reports';
 
@@ -123,14 +226,17 @@ class AdminController extends Controller
     // ── Actions ───────────────────────────────────────────
     public function deleteQuiz(Quiz $quiz)
     {
+        $quizTitle = $quiz->title;
+
         $quiz->update([
             'deleted_by_admin_at'      => now(),
             'deleted_by_admin_user_id' => Auth::id(),
         ]);
+
         $quiz->questions()->detach();
         $quiz->delete();
 
-        return back()->with('success', "Quiz \"{$quiz->title}\" został usunięty.");
+        return back()->with('success', "Quiz \"{$quizTitle}\" został usunięty.");
     }
 
     public function resolveReport(QuizReport $report)
@@ -159,7 +265,10 @@ class AdminController extends Controller
 
     public function unbanUser(User $user)
     {
-        $user->update(['banned_until' => null]);
+        $user->update([
+            'banned_until' => null,
+        ]);
+
         return back()->with('success', "Ban użytkownika {$user->name} został zdjęty.");
     }
 }

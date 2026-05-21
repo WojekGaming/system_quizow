@@ -9,6 +9,7 @@ use App\Http\Controllers\FriendController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\QuizReportController;
 
 // ── Public ────────────────────────────────────────────────
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -46,6 +47,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/quizzes/{quiz}',    [QuizController::class, 'update'])->name('quizzes.update');
     Route::delete('/quizzes/{quiz}',   [QuizController::class, 'destroy'])->name('quizzes.destroy');
     Route::post('/quiz/{quiz}/rate',   [QuizPlayController::class, 'rate'])->name('quiz.rate');
+
+    Route::post('/quiz/{quiz}/report', [QuizReportController::class, 'store'])
+    ->name('quiz.report');
 
     // Friends
     Route::get('/friends',                        [FriendController::class, 'index'])->name('friends.index');
