@@ -14,7 +14,7 @@
 
         {{-- Name --}}
         <div class="auth-field">
-            <x-input-label for="name" :value="__('Name')" class="auth-label" />
+            <x-input-label for="name" :value="__('Imię')" class="auth-label" />
             <x-text-input
                 id="name"
                 class="auth-input"
@@ -26,7 +26,7 @@
                 autocomplete="name"
                 placeholder="John Doe"
             />
-            <x-input-error :messages="$errors->get('name')" class="auth-error" />
+            <x-input-error :messages="$errors->get('imię')" class="auth-error" />
         </div>
 
         {{-- Email --}}
@@ -47,7 +47,7 @@
 
         {{-- Password --}}
         <div class="auth-field">
-            <x-input-label for="password" :value="__('Password')" class="auth-label" />
+            <x-input-label for="password" :value="__('Hasło')" class="auth-label" />
             <x-text-input
                 id="password"
                 class="auth-input"
@@ -57,13 +57,13 @@
                 autocomplete="new-password"
                 placeholder="••••••••"
             />
-            <p class="auth-hint">{{ __('Minimum 8 characters') }}</p>
+            <p class="auth-hint">{{ __('Minimum 8 znaków') }}</p>
             <x-input-error :messages="$errors->get('password')" class="auth-error" />
         </div>
 
         {{-- Confirm Password --}}
         <div class="auth-field">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="auth-label" />
+            <x-input-label for="password_confirmation" :value="__('Potwierdź hasło')" class="auth-label" />
             <x-text-input
                 id="password_confirmation"
                 class="auth-input"
@@ -79,7 +79,7 @@
         {{-- Submit --}}
         <div class="mt-6">
             <x-primary-button class="auth-btn-primary auth-btn-primary--full">
-                {{ __('Create account') }}
+                {{ __('Stwórz konto') }}
             </x-primary-button>
         </div>
     </form>
@@ -87,8 +87,8 @@
     <div class="auth-divider"></div>
 
     <p class="auth-footer">
-        {{ __('Already have an account?') }}
-        <a href="{{ route('login') }}" class="auth-link">{{ __('Sign in') }}</a>
+        {{ __('Masz już konto?') }}
+        <a href="{{ route('login') }}" class="auth-link">{{ __('Zaloguj się') }}</a>
     </p>
 
 </x-guest-layout>

@@ -2,13 +2,13 @@
 
     <div class="auth-icon-badge">🔒</div>
 
-    <h1 class="auth-title">{{ __('Confirm access') }}</h1>
+    <h1 class="auth-title">{{ __('Potwierdź dostęp') }}</h1>
     <p class="auth-subtitle">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+        {{ __('To jest bezpieczna strefa aplikacji. Proszę potwierdzić hasło przed kontynuowaniem.') }}
     </p>
 
     <div class="auth-secure-badge">
-        <span>🛡</span> {{ __('Secure verification required') }}
+        <span>🛡</span> {{ __('Wymagana weryfikacja bezpieczeństwa') }}
     </div>
 
     {{-- Validation Errors --}}
@@ -25,7 +25,7 @@
 
         {{-- Password --}}
         <div class="auth-field">
-            <x-input-label for="password" :value="__('Password')" class="auth-label" />
+            <x-input-label for="password" :value="__('Hasło')" class="auth-label" />
             <x-text-input
                 id="password"
                 class="auth-input"
@@ -42,7 +42,7 @@
         {{-- Submit --}}
         <div class="mt-6">
             <x-primary-button class="auth-btn-primary auth-btn-primary--full">
-                {{ __('Confirm & continue') }}
+                {{ __('Potwierdź i kontynuuj') }}
             </x-primary-button>
         </div>
     </form>

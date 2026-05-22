@@ -34,7 +34,7 @@
 
         {{-- Password --}}
         <div class="auth-field">
-            <x-input-label for="password" :value="__('Password')" class="auth-label" />
+            <x-input-label for="password" :value="__('Hasło')" class="auth-label" />
             <x-text-input
                 id="password"
                 class="auth-input"
@@ -51,12 +51,12 @@
         <div class="auth-actions-row">
             <label class="auth-remember">
                 <input id="remember_me" type="checkbox" name="remember" />
-                <span>{{ __('Remember me') }}</span>
+                <span>{{ __('Zapamiętaj mnie') }}</span>
             </label>
 
             @if (Route::has('password.request'))
                 <a href="{{ route('password.request') }}" class="auth-btn-link">
-                    {{ __('Reset password') }}
+                    {{ __('Zresetuj hasło') }}
                 </a>
             @endif
         </div>
@@ -64,7 +64,7 @@
         {{-- Submit --}}
         <div class="mt-6">
             <x-primary-button class="auth-btn-primary auth-btn-primary--full">
-                {{ __('Log in') }}
+                {{ __('Zaloguj się') }}
             </x-primary-button>
         </div>
     </form>
@@ -72,8 +72,8 @@
     <div class="auth-divider"></div>
 
     <p class="auth-footer">
-        {{ __("Don't have an account?") }}
-        <a href="{{ route('register') }}" class="auth-link">{{ __('Create one') }}</a>
+        {{ __("Nie masz konta?") }}
+        <a href="{{ route('register') }}" class="auth-link">{{ __('Utwórz konto') }}</a>
     </p>
 
 </x-guest-layout>

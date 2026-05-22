@@ -2,9 +2,9 @@
 
     <div class="auth-icon-badge">🔑</div>
 
-    <h1 class="auth-title">{{ __('Reset password') }}</h1>
+    <h1 class="auth-title">{{ __('Zresetuj hasło') }}</h1>
     <p class="auth-subtitle">
-        {{ __('Enter your email and we\'ll send you a link to reset your password.') }}
+        {{ __('Wprowadź swój email, a wyślemy Ci link do zresetowania hasła.') }}
     </p>
 
     {{-- Session Status --}}
@@ -42,7 +42,7 @@
         {{-- Submit --}}
         <div class="mt-6">
             <x-primary-button class="auth-btn-primary auth-btn-primary--full">
-                {{ __('Send reset link') }}
+                {{ __('Wyślij link do zresetowania hasła') }}
             </x-primary-button>
         </div>
     </form>
@@ -50,8 +50,8 @@
     <div class="auth-divider"></div>
 
     <p class="auth-footer">
-        {{ __('Remember your password?') }}
-        <a href="{{ route('login') }}" class="auth-link">{{ __('Back to login') }}</a>
+        {{ __('Pamiętasz swoje hasło?') }}
+        <a href="{{ route('login') }}" class="auth-link">{{ __('Wróć do logowania') }}</a>
     </p>
 
 </x-guest-layout>
