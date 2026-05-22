@@ -67,27 +67,46 @@
                 </div>
 
                 @forelse($friends as $friend)
-                    <div class="dash-friend-item">
-                        <div class="dash-friend-item__avatar">{{ strtoupper(substr($friend->name, 0, 1)) }}</div>
-                        <div style="flex:1;">
-                            <div class="dash-friend-item__name">{{ $friend->name }}</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.3);">
-                                {{ $friend->quizzes_count }} quizów
+                    <div class="dash-friend-item" style="flex-direction:column; align-items:stretch; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div class="dash-friend-item__avatar">{{ strtoupper(substr($friend->name, 0, 1)) }}</div>
+                            <div style="flex:1;">
+                                <div class="dash-friend-item__name">{{ $friend->name }}</div>
+                                <div style="font-size:12px; color:rgba(255,255,255,0.3);">
+                                    {{ $friend->quizzes_count }} quizów
+                                </div>
                             </div>
+                            @php
+                                $friendship = \App\Models\Friendship::where(function($q) use ($friend) {
+                                    $q->where('requester_id', auth()->id())->where('addressee_id', $friend->id);
+                                })->orWhere(function($q) use ($friend) {
+                                    $q->where('requester_id', $friend->id)->where('addressee_id', auth()->id());
+                                })->where('status', 'accepted')->first();
+                            @endphp
+                            @if($friendship)
+                                <form method="POST" action="{{ route('friends.remove', $friendship) }}"
+                                      onsubmit="return confirm('Usunąć znajomego?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="dash-friend-btn dash-friend-btn--reject" title="Usuń znajomego">✕</button>
+                                </form>
+                            @endif
                         </div>
-                        @php
-                            $friendship = \App\Models\Friendship::where(function($q) use ($friend) {
-                                $q->where('requester_id', auth()->id())->where('addressee_id', $friend->id);
-                            })->orWhere(function($q) use ($friend) {
-                                $q->where('requester_id', $friend->id)->where('addressee_id', auth()->id());
-                            })->where('status', 'accepted')->first();
-                        @endphp
-                        @if($friendship)
-                            <form method="POST" action="{{ route('friends.remove', $friendship) }}"
-                                  onsubmit="return confirm('Usunąć znajomego?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="dash-friend-btn dash-friend-btn--reject" title="Usuń znajomego">✕</button>
-                            </form>
+
+                        {{-- Ostatnie 5 quizów --}}
+                        @if($friend->quizAttempts->isNotEmpty())
+                            <div style="padding-left:48px;">
+                                <div style="font-size:11px; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">Ostatnie quizy</div>
+                                <div style="display:flex; flex-direction:column; gap:5px;">
+                                    @foreach($friend->quizAttempts as $attempt)
+                                        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border-radius:8px; padding:7px 10px;">
+                                            <span style="font-size:13px; color:rgba(255,255,255,0.75);">{{ $attempt->quiz->title ?? 'Usunięty quiz' }}</span>
+                                            <span style="font-size:12px; color:#ff6b00; font-weight:600; white-space:nowrap; margin-left:10px;">{{ $attempt->score_percentage }}%</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <div style="padding-left:48px; font-size:12px; color:rgba(255,255,255,0.2);">Brak wypełnionych quizów</div>
                         @endif
                     </div>
                 @empty

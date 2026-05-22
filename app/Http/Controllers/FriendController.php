@@ -23,6 +23,12 @@ class FriendController extends Controller
                   ->where('requester_id', $user->id)->where('status', 'accepted');
             })
             ->withCount('quizzes')
+            ->with(['quizAttempts' => function ($q) {
+                $q->with('quiz:id,title')
+                  ->whereNotNull('finished_at')
+                  ->latest('finished_at')
+                  ->limit(5);
+            }])
             ->get();
 
         // Pending received
