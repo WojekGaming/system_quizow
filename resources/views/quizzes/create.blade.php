@@ -452,19 +452,42 @@ questionType.addEventListener('change', () => {
     renderAnswers();
 });
 
-document.getElementById('saveQuizBtn').addEventListener('click', () => {
+document.getElementById('saveQuizBtn').addEventListener('click', async () => {
     saveCurrentToState();
     const title = document.getElementById('quizTitle').value.trim();
     if (!title) { showToast('Podaj tytuł quizu!', '#f87171'); return; }
     const incomplete = questions.filter(q => !q.text || q.correct.length === 0);
     if (incomplete.length > 0) { showToast(`${incomplete.length} pytanie(a) nie są kompletne!`, '#f87171'); return; }
-    document.getElementById('f_title').value     = title;
-    document.getElementById('f_desc').value      = document.getElementById('quizDesc').value;
-    document.getElementById('f_category').value  = document.getElementById('quizCategory').value;
-    document.getElementById('f_premium').value   = document.getElementById('quizPremium').checked ? '1' : '0';
-    document.getElementById('f_active').value    = document.getElementById('quizActive').checked  ? '1' : '0';
-    document.getElementById('f_questions').value = JSON.stringify(questions);
-    document.getElementById('submitForm').submit();
+
+    const btn = document.getElementById('saveQuizBtn');
+    btn.disabled = true;
+    btn.textContent = 'Zapisuję...';
+
+    const fd = new FormData();
+    fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+    fd.append('title',       title);
+    fd.append('description', document.getElementById('quizDesc').value);
+    fd.append('category_id', document.getElementById('quizCategory').value);
+    fd.append('is_premium',  document.getElementById('quizPremium').checked ? '1' : '0');
+    fd.append('is_active',   document.getElementById('quizActive').checked  ? '1' : '0');
+    fd.append('questions_json', JSON.stringify(questions));
+
+    questions.forEach((q, idx) => {
+        if (questionImages[q.id]) {
+            fd.append(`image_q_${idx}`, questionImages[q.id]);
+        }
+    });
+
+    try {
+        const resp = await fetch('{{ route('quizzes.store') }}', { method: 'POST', body: fd });
+        if (resp.redirected) { window.location.href = resp.url; return; }
+        if (!resp.ok) throw new Error('Błąd serwera: ' + resp.status);
+        window.location.href = resp.url || '/quizzes';
+    } catch (err) {
+        showToast('Błąd zapisu: ' + err.message, '#f87171');
+        btn.disabled = false;
+        btn.textContent = '💾 Zapisz quiz';
+    }
 });
 
 switchTo(0);

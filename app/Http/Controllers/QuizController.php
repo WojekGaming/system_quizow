@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Quiz;
 use App\Models\Category;
 
@@ -49,7 +50,7 @@ class QuizController extends Controller
         ]);
 
         if ($request->filled('questions_json')) {
-            $this->syncQuestions($quiz, $request->input('questions_json'));
+            $this->syncQuestions($quiz, $request->input('questions_json'), $request->allFiles());
         }
 
         return redirect()->route('quizzes.edit', $quiz)
@@ -66,11 +67,12 @@ class QuizController extends Controller
             $answers = is_string($q->answers) ? json_decode($q->answers, true) : $q->answers;
             $correct = is_string($q->correct_answers) ? json_decode($q->correct_answers, true) : $q->correct_answers;
             return [
-                'id'      => $q->id,
-                'text'    => $q->content,
-                'type'    => $q->question_type,
-                'answers' => $answers ?? ['', '', '', ''],
-                'correct' => $correct ?? [],
+                'id'         => $q->id,
+                'text'       => $q->content,
+                'type'       => $q->question_type,
+                'answers'    => $answers ?? ['', '', '', ''],
+                'correct'    => $correct ?? [],
+                'image_path' => $q->image_path,
             ];
         })->values();
 
@@ -98,7 +100,7 @@ class QuizController extends Controller
         ]);
 
         if ($request->filled('questions_json')) {
-            $this->syncQuestions($quiz, $request->input('questions_json'));
+            $this->syncQuestions($quiz, $request->input('questions_json'), $request->allFiles());
         }
 
         return back()->with('success', 'Quiz zaktualizowany.');
@@ -112,7 +114,7 @@ class QuizController extends Controller
         return redirect()->route('quizzes.index')->with('success', 'Quiz usunięty.');
     }
 
-    private function syncQuestions(Quiz $quiz, string $questionsJson): void
+    private function syncQuestions(Quiz $quiz, string $questionsJson, array $files = []): void
     {
         $questions = json_decode($questionsJson, true);
         if (!is_array($questions)) return;
@@ -120,7 +122,7 @@ class QuizController extends Controller
         $syncData = [];
         $order = 1;
 
-        foreach ($questions as $q) {
+        foreach ($questions as $idx => $q) {
             $text    = trim($q['text'] ?? '');
             $type    = $q['type'] ?? 'single_choice';
             $answers = $q['answers'] ?? ['', '', '', ''];
@@ -142,6 +144,23 @@ class QuizController extends Controller
             $question->question_type   = $type;
             $question->answers         = json_encode(array_values($answers));
             $question->correct_answers = json_encode(array_values($correct));
+
+            // Handle image upload for this question (key: image_q_{idx})
+            $fileKey = 'image_q_' . $idx;
+            if (isset($files[$fileKey])) {
+                // Delete old image if exists
+                if ($question->image_path) {
+                    Storage::disk('public')->delete($question->image_path);
+                }
+                $path = $files[$fileKey]->store('question_images', 'public');
+                $question->image_path = $path;
+            } elseif (isset($q['remove_image']) && $q['remove_image']) {
+                if ($question->image_path) {
+                    Storage::disk('public')->delete($question->image_path);
+                }
+                $question->image_path = null;
+            }
+
             $question->save();
 
             $syncData[$question->id] = ['question_order' => $order++];

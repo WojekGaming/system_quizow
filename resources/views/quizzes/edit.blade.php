@@ -388,10 +388,17 @@ function switchTo(i) {
     questionType.value = q.type;
     workspaceTitle.textContent = `Edytujesz: Pytanie ${i + 1}`;
     if (questionImages[q.id]) {
+        // Nowe zdjęcie wybrane przez użytkownika w tej sesji
         previewImg.src = URL.createObjectURL(questionImages[q.id]);
         previewImg.style.display = 'block';
         uploadPlaceholder.style.display = 'none';
         fileName.textContent = questionImages[q.id].name;
+    } else if (q.image_path && !q.remove_image) {
+        // Istniejące zdjęcie z bazy danych
+        previewImg.src = '/storage/' + q.image_path;
+        previewImg.style.display = 'block';
+        uploadPlaceholder.style.display = 'none';
+        fileName.textContent = 'Zapisane zdjęcie';
     } else {
         previewImg.src = '';
         previewImg.style.display = 'none';
@@ -447,7 +454,9 @@ imageInput.addEventListener('change', e => {
     reader.readAsDataURL(file);
 });
 document.getElementById('removeImgBtn').addEventListener('click', () => {
-    delete questionImages[questions[currentQ].id];
+    const q = questions[currentQ];
+    delete questionImages[q.id];
+    q.remove_image = true;
     imageInput.value=''; previewImg.src=''; previewImg.style.display='none'; uploadPlaceholder.style.display='block'; fileName.textContent='Nie wybrano pliku';
 });
 
@@ -458,19 +467,45 @@ questionType.addEventListener('change', () => {
     renderAnswers();
 });
 
-document.getElementById('saveQuizBtn').addEventListener('click', () => {
+document.getElementById('saveQuizBtn').addEventListener('click', async () => {
     saveCurrentToState();
     const title = document.getElementById('quizTitle').value.trim();
     if (!title) { showToast('Podaj tytuł quizu!', '#f87171'); return; }
     const incomplete = questions.filter(q => !q.text || q.correct.length === 0);
     if (incomplete.length > 0) { showToast(`${incomplete.length} pytanie(a) nie są kompletne!`, '#f87171'); return; }
-    document.getElementById('f_title').value     = title;
-    document.getElementById('f_desc').value      = document.getElementById('quizDesc').value;
-    document.getElementById('f_category').value  = document.getElementById('quizCategory').value;
-    document.getElementById('f_premium').value   = document.getElementById('quizPremium').checked ? '1' : '0';
-    document.getElementById('f_active').value    = document.getElementById('quizActive').checked  ? '1' : '0';
-    document.getElementById('f_questions').value = JSON.stringify(questions);
-    document.getElementById('submitForm').submit();
+
+    const btn = document.getElementById('saveQuizBtn');
+    btn.disabled = true;
+    btn.textContent = 'Zapisuję...';
+
+    const fd = new FormData();
+    fd.append('_token',  document.querySelector('meta[name="csrf-token"]').content);
+    fd.append('_method', 'PATCH');
+    fd.append('title',       title);
+    fd.append('description', document.getElementById('quizDesc').value);
+    fd.append('category_id', document.getElementById('quizCategory').value);
+    fd.append('is_premium',  document.getElementById('quizPremium').checked ? '1' : '0');
+    fd.append('is_active',   document.getElementById('quizActive').checked  ? '1' : '0');
+    fd.append('questions_json', JSON.stringify(questions));
+
+    questions.forEach((q, idx) => {
+        if (questionImages[q.id]) {
+            fd.append(`image_q_${idx}`, questionImages[q.id]);
+        }
+    });
+
+    try {
+        const resp = await fetch('{{ route('quizzes.update', $quiz) }}', { method: 'POST', body: fd });
+        if (resp.redirected) { window.location.href = resp.url; return; }
+        if (!resp.ok) throw new Error('Błąd serwera: ' + resp.status);
+        showToast('Quiz zaktualizowany!', '#4ade80');
+        btn.disabled = false;
+        btn.textContent = '💾 Zapisz zmiany';
+    } catch (err) {
+        showToast('Błąd zapisu: ' + err.message, '#f87171');
+        btn.disabled = false;
+        btn.textContent = '💾 Zapisz zmiany';
+    }
 });
 
 switchTo(0);
