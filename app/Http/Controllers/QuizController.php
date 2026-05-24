@@ -106,6 +106,45 @@ class QuizController extends Controller
         return back()->with('success', 'Quiz zaktualizowany.');
     }
 
+    /**
+     * Return available questions for a given category.
+     * Includes public base questions and the current user's own questions.
+     */
+    public function availableQuestions(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $categoryId = $request->input('category_id');
+
+        $questions = \App\Models\Question::where('category_id', $categoryId)
+            ->where(function ($q) {
+                $q->where('is_public_base', true)
+                  ->orWhere('creator_id', Auth::id());
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(200)
+            ->get()
+            ->map(function ($q) {
+                $answers = is_string($q->answers) ? json_decode($q->answers, true) : $q->answers;
+                $correct = is_string($q->correct_answers) ? json_decode($q->correct_answers, true) : $q->correct_answers;
+                return [
+                    'id'           => $q->id,
+                    'text'         => $q->content,
+                    'type'         => $q->question_type,
+                    'answers'      => $answers ?? ['', '', '', ''],
+                    'correct'      => $correct ?? [],
+                    'creator_id'   => $q->creator_id,
+                    'creator_name' => $q->creator?->name,
+                    'can_edit'     => false, // questions from DB are always read-only when added to a new quiz
+                    'image_path'   => $q->image_path,
+                ];
+            });
+
+        return response()->json(['questions' => $questions]);
+    }
+
     public function destroy(Quiz $quiz)
     {
         $this->authorize('delete', $quiz);
@@ -135,33 +174,43 @@ class QuizController extends Controller
 
             $question = $existingId ? \App\Models\Question::find($existingId) : null;
 
+            // If question exists and is not created by current user, do not overwrite its content/answers/image.
+            $canModifyQuestion = true;
+            if ($question && $question->creator_id !== Auth::id()) {
+                $canModifyQuestion = false;
+            }
+
             if (!$question) {
                 $question = new \App\Models\Question();
                 $question->creator_id = Auth::id();
+                $question->category_id = $quiz->category_id; // inherit quiz category for new questions
             }
 
-            $question->content         = $text;
-            $question->question_type   = $type;
-            $question->answers         = json_encode(array_values($answers));
-            $question->correct_answers = json_encode(array_values($correct));
+            if ($canModifyQuestion) {
+                $question->content         = $text;
+                $question->question_type   = $type;
+                $question->answers         = json_encode(array_values($answers));
+                $question->correct_answers = json_encode(array_values($correct));
+                $question->category_id     = $quiz->category_id; // keep category in sync with quiz
 
-            // Handle image upload for this question (key: image_q_{idx})
-            $fileKey = 'image_q_' . $idx;
-            if (isset($files[$fileKey])) {
-                // Delete old image if exists
-                if ($question->image_path) {
-                    Storage::disk('public')->delete($question->image_path);
+                // Handle image upload for this question (key: image_q_{idx})
+                $fileKey = 'image_q_' . $idx;
+                if (isset($files[$fileKey])) {
+                    // Delete old image if exists
+                    if ($question->image_path) {
+                        Storage::disk('public')->delete($question->image_path);
+                    }
+                    $path = $files[$fileKey]->store('question_images', 'public');
+                    $question->image_path = $path;
+                } elseif (isset($q['remove_image']) && $q['remove_image']) {
+                    if ($question->image_path) {
+                        Storage::disk('public')->delete($question->image_path);
+                    }
+                    $question->image_path = null;
                 }
-                $path = $files[$fileKey]->store('question_images', 'public');
-                $question->image_path = $path;
-            } elseif (isset($q['remove_image']) && $q['remove_image']) {
-                if ($question->image_path) {
-                    Storage::disk('public')->delete($question->image_path);
-                }
-                $question->image_path = null;
+
+                $question->save();
             }
-
-            $question->save();
 
             $syncData[$question->id] = ['question_order' => $order++];
         }

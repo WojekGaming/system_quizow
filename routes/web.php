@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Quizzes
     Route::get('/quizzes',             [QuizController::class, 'index'])->name('quizzes.index');
     Route::get('/quizzes/create',      [QuizController::class, 'create'])->name('quizzes.create');
+    Route::get('/quizzes/available-questions', [QuizController::class, 'availableQuestions'])->name('quizzes.availableQuestions');
     Route::post('/quizzes',            [QuizController::class, 'store'])->name('quizzes.store');
     Route::get('/quizzes/{quiz}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
     Route::patch('/quizzes/{quiz}',    [QuizController::class, 'update'])->name('quizzes.update');

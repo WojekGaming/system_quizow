@@ -221,6 +221,11 @@
                 </a>
             </div>
         </div>
+        <div class="side-block">
+            <h2>Baza pytań (wybrana kategoria)</h2>
+            <div id="availableQuestions" style="display:block; max-height:320px; overflow:auto;"></div>
+            <div class="small-note" style="margin-top:8px">Możesz dodać pytania z bazy. Edycja treści dostępna tylko dla autora pytania.</div>
+        </div>
     </aside>
 
     <main class="qb-workspace">
@@ -303,6 +308,7 @@ const workspaceTitle    = document.getElementById('workspaceTitle');
 const questionText      = document.getElementById('questionText');
 const questionType      = document.getElementById('questionType');
 const answersGrid       = document.getElementById('answersGrid');
+const quizCategory      = document.getElementById('quizCategory');
 const imageInput        = document.getElementById('imageInput');
 const previewImg        = document.getElementById('previewImg');
 const uploadPlaceholder = document.getElementById('uploadPlaceholder');
@@ -326,9 +332,15 @@ function renderList() {
         div.className = 'question-item' + (i === currentQ ? ' active' : '');
         div.innerHTML = `
             <div class="q-item-top">
-                <span class="q-number">Pytanie ${i + 1}</span>
-                <span class="q-state ${i === currentQ ? '' : saved ? 'saved' : ''}">
-                    ${i === currentQ ? 'edytujesz' : saved ? 'zapisane' : 'robocze'}
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button class="qb-btn qb-btn-secondary" style="height:28px;padding:4px 8px;font-size:12px;" onclick="moveUp(${i});event.stopPropagation();">↑</button>
+                    <button class="qb-btn qb-btn-secondary" style="height:28px;padding:4px 8px;font-size:12px;" onclick="moveDown(${i});event.stopPropagation();">↓</button>
+                </div>
+                <span style="display:flex;gap:8px;align-items:center;">
+                  <span class="q-number">Pytanie ${i + 1}</span>
+                  <span class="q-state ${i === currentQ ? '' : saved ? 'saved' : ''}">
+                      ${i === currentQ ? 'edytujesz' : saved ? 'zapisane' : 'robocze'}
+                  </span>
                 </span>
             </div>
             <div class="q-name">${q.text || 'Brak treści...'}</div>`;
@@ -337,8 +349,23 @@ function renderList() {
     });
 }
 
+function moveUp(i) {
+    if (i <= 0) return;
+    const a = questions[i-1]; questions[i-1] = questions[i]; questions[i] = a;
+    if (currentQ === i) currentQ = i-1; else if (currentQ === i-1) currentQ = i;
+    renderList(); switchTo(currentQ);
+}
+
+function moveDown(i) {
+    if (i >= questions.length-1) return;
+    const a = questions[i+1]; questions[i+1] = questions[i]; questions[i] = a;
+    if (currentQ === i) currentQ = i+1; else if (currentQ === i+1) currentQ = i;
+    renderList(); switchTo(currentQ);
+}
+
 function renderAnswers() {
     const q = questions[currentQ];
+    const editable = !(q.from_db && !q.can_edit);
     answersGrid.innerHTML = '';
     const letters = ['A','B','C','D'];
     const count = q.type === 'true_false' ? 2 : 4;
@@ -357,22 +384,24 @@ function renderAnswers() {
             </div>
             <input class="qb-control" type="text"
                    placeholder="${q.type === 'true_false' ? tfLabels[i] : 'Odpowiedź ' + letters[i]}"
-                   value="${q.answers[i] || ''}" data-idx="${i}">`;
+                   value="${q.answers[i] || ''}" data-idx="${i}" ${!editable ? 'disabled' : ''}>`;
         answersGrid.appendChild(tile);
     }
-    answersGrid.querySelectorAll('input[name=correctAnswer]').forEach(inp => {
-        inp.addEventListener('change', () => {
-            if (q.type === 'multiple_choice') {
-                q.correct = [...answersGrid.querySelectorAll('input[name=correctAnswer]:checked')].map(x => parseInt(x.value));
-            } else {
-                q.correct = [parseInt(inp.value)];
-            }
-            renderAnswers();
+    if (editable) {
+        answersGrid.querySelectorAll('input[name=correctAnswer]').forEach(inp => {
+            inp.addEventListener('change', () => {
+                if (q.type === 'multiple_choice') {
+                    q.correct = [...answersGrid.querySelectorAll('input[name=correctAnswer]:checked')].map(x => parseInt(x.value));
+                } else {
+                    q.correct = [parseInt(inp.value)];
+                }
+                renderAnswers();
+            });
         });
-    });
-    answersGrid.querySelectorAll('input[type=text]').forEach(inp => {
-        inp.addEventListener('input', () => { q.answers[parseInt(inp.dataset.idx)] = inp.value; });
-    });
+        answersGrid.querySelectorAll('input[type=text]').forEach(inp => {
+            inp.addEventListener('input', () => { q.answers[parseInt(inp.dataset.idx)] = inp.value; });
+        });
+    }
 }
 
 function switchTo(i) {
@@ -394,6 +423,65 @@ function switchTo(i) {
     }
     renderAnswers();
     renderList();
+    applyEditability();
+}
+
+quizCategory.addEventListener('change', () => {
+    const cat = quizCategory.value;
+    const box = document.getElementById('availableQuestions');
+    box.innerHTML = 'Ładowanie...';
+    if (!cat) { box.innerHTML = '<div class="small-note">Wybierz kategorię, aby zobaczyć pytania z bazy.</div>'; return; }
+    fetch('{{ route('quizzes.availableQuestions') }}?category_id=' + encodeURIComponent(cat))
+        .then(r => r.json())
+        .then(data => renderAvailableQuestions(data.questions || []))
+        .catch(err => { box.innerHTML = '<div class="small-note" style="color:#f87171">Błąd pobierania pytań</div>'; });
+});
+
+function renderAvailableQuestions(list) {
+    const box = document.getElementById('availableQuestions');
+    box.innerHTML = '';
+    if (!list.length) { box.innerHTML = '<div class="small-note">Brak pytań w tej kategorii.</div>'; return; }
+    list.forEach(q => {
+        const el = document.createElement('div');
+        el.className = 'question-item';
+        el.style.display = 'flex';
+        el.style.justifyContent = 'space-between';
+        el.style.alignItems = 'center';
+        el.style.gap = '8px';
+        el.innerHTML = `<div style="flex:1;margin-right:8px;"><div style="font-size:13px;color:rgba(255,255,255,0.85);">${q.text}</div><div class="small-note">Autor: ${q.creator_name || 'Anonim'}</div></div>`;
+        const btn = document.createElement('button');
+        btn.className = 'qb-btn qb-btn-primary';
+        btn.textContent = 'Dodaj';
+        btn.addEventListener('click', () => {
+            // Add question to quiz as read-only if not editable
+            const newQ = {
+                id: q.id,
+                text: q.text,
+                type: q.type,
+                answers: q.answers || ['','','',''],
+                correct: q.correct || [],
+                from_db: true,
+                can_edit: false
+            };
+            saveCurrentToState();
+            questions.push(newQ);
+            switchTo(questions.length - 1);
+            showToast('Dodano pytanie z bazy');
+        });
+        el.appendChild(btn);
+        box.appendChild(el);
+    });
+}
+
+// Disable editing UI for DB-sourced questions without edit rights
+function applyEditability() {
+    const q = questions[currentQ];
+    const editable = !(q.from_db && !q.can_edit);
+    questionText.disabled = !editable;
+    questionType.disabled = !editable;
+    document.getElementById('chooseImgBtn').disabled = !editable;
+    document.getElementById('removeImgBtn').disabled = !editable;
+    document.getElementById('saveQuestionBtn').style.display = editable ? 'inline-flex' : 'none';
 }
 
 function saveCurrentToState() {
