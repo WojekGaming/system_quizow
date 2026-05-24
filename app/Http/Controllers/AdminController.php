@@ -256,6 +256,7 @@ class AdminController extends Controller
     public function deleteQuiz(Quiz $quiz)
     {
         $quizTitle = $quiz->title;
+        $ownerId   = $quiz->user_id;
 
         $quiz->update([
             'deleted_by_admin_at'      => now(),
@@ -263,6 +264,16 @@ class AdminController extends Controller
         ]);
 
         $quiz->delete(); // soft delete — pivot stays intact for preview
+
+        // Notify the quiz author
+        if ($ownerId) {
+            \App\Models\UserNotification::create([
+                'user_id' => $ownerId,
+                'quiz_id' => $quiz->id,
+                'type'    => 'quiz_deleted',
+                'message' => "Twój quiz „{$quizTitle}” został usunięty przez administrację.",
+            ]);
+        }
 
         return back()->with('success', "Quiz \"{$quizTitle}\" został usunięty.");
     }

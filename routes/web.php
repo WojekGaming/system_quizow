@@ -69,6 +69,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile',       [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
     Route::delete('/profile',      [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Notifications
+    Route::post('/notifications/mark-read', function (\Illuminate\Http\Request $request) {
+        \App\Models\UserNotification::whereIn('id', $request->input('ids', []))
+            ->where('user_id', auth()->id())
+            ->update(['read_at' => now()]);
+        return response()->json(['ok' => true]);
+    })->name('notifications.markRead');
 });
 
 require __DIR__ . '/auth.php';

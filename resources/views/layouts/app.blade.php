@@ -112,6 +112,79 @@
         {{ $slot }}
     </main>
 
+    {{-- Quiz deleted notification popup --}}
+    @auth
+    @php
+        $quizDeletedNotifications = \App\Models\UserNotification::where('user_id', auth()->id())
+            ->where('type', 'quiz_deleted')
+            ->whereNull('read_at')
+            ->with('quiz')
+            ->get();
+    @endphp
+    @if($quizDeletedNotifications->isNotEmpty())
+        <div id="notifOverlay" style="
+            position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;
+            display:flex;align-items:center;justify-content:center;padding:20px;
+            backdrop-filter:blur(4px);
+        ">
+            <div style="
+                background:#202427;border:1px solid rgba(255,255,255,0.1);border-radius:20px;
+                padding:32px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.5);
+                position:relative;z-index:9999;
+            ">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                    <div style="
+                        width:42px;height:42px;border-radius:12px;flex-shrink:0;
+                        background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);
+                        display:flex;align-items:center;justify-content:center;font-size:20px;
+                    ">🛡</div>
+                    <div>
+                        <div style="font-size:17px;font-weight:700;color:#fff;">Powiadomienie od administracji</div>
+                        <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px;">Quizzies Team</div>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
+                    @foreach($quizDeletedNotifications as $notif)
+                        <div style="
+                            background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.18);
+                            border-radius:12px;padding:14px 16px;
+                        ">
+                            <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.5;">
+                                {{ $notif->message }}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <button onclick="dismissNotifications()" style="
+                    width:100%;height:44px;background:linear-gradient(135deg,#ff6b00,#ff8c33);
+                    color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;
+                    font-size:15px;font-weight:700;cursor:pointer;transition:.2s ease;
+                " onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+                    Rozumiem
+                </button>
+            </div>
+        </div>
+
+        <script>
+        function dismissNotifications() {
+            const ids = @json($quizDeletedNotifications->pluck('id'));
+            fetch('{{ route('notifications.markRead') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({ ids }),
+            }).finally(() => {
+                document.getElementById('notifOverlay').style.display = 'none';
+            });
+        }
+        </script>
+    @endif
+    @endauth
+
     <script>
         const toggle = document.getElementById('userDropdownToggle');
         const dropdown = document.getElementById('userDropdown');
