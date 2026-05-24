@@ -29,6 +29,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users',       [AdminController::class, 'users'])->name('users');
     Route::get('/users/{user}/quizzes', [AdminController::class, 'userQuizzes'])->name('user.quizzes');
     Route::delete('/quizzes/{quiz}',           [AdminController::class, 'deleteQuiz'])->name('quiz.delete');
+    Route::delete('/reports/{report}/dismiss', [AdminController::class, 'dismissReport'])->name('report.dismiss');
     Route::patch('/reports/{report}/resolve',  [AdminController::class, 'resolveReport'])->name('report.resolve');
     Route::patch('/users/{user}/ban',          [AdminController::class, 'banUser'])->name('user.ban');
     Route::patch('/users/{user}/unban',        [AdminController::class, 'unbanUser'])->name('user.unban');

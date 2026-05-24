@@ -81,7 +81,7 @@ class AdminController extends Controller
     // ── Tab: Reports ──────────────────────────────────────
     public function reports(Request $request)
     {
-        $query = QuizReport::with(['quiz.category', 'quiz.user', 'reportedBy']);
+        $query = QuizReport::with(['quiz.category', 'quiz.user', 'reportedBy', 'quiz.user']);
 
         if ($request->filled('search')) {
             $query->whereHas('quiz', function ($q) use ($request) {
@@ -188,11 +188,22 @@ class AdminController extends Controller
     // ── Tab: Users ────────────────────────────────────────
     public function users(Request $request)
     {
-        $query = User::whereHas('quizzes', function ($q) {
-            $q->whereNotNull('deleted_by_admin_at')->withTrashed();
+        // Show users who either had quizzes deleted by admin OR authored a reported quiz
+        $reportedAuthorIds = QuizReport::join('quizzes', 'quizzes.id', '=', 'quiz_reports.quiz_id')
+            ->whereNotNull('quizzes.user_id')
+            ->pluck('quizzes.user_id');
+
+        $query = User::where(function ($q) use ($reportedAuthorIds) {
+            $q->whereHas('quizzes', function ($q2) {
+                $q2->whereNotNull('deleted_by_admin_at')->withTrashed();
+            })
+            ->orWhereIn('id', $reportedAuthorIds);
         })
         ->withCount(['quizzes as deleted_quizzes_count' => function ($q) {
             $q->whereNotNull('deleted_by_admin_at')->withTrashed();
+        }])
+        ->withCount(['quizzes as reported_quizzes_count' => function ($q) {
+            $q->whereHas('reports');
         }]);
 
         if ($request->filled('search')) {
@@ -213,7 +224,10 @@ class AdminController extends Controller
     {
         $quizzes = Quiz::withTrashed()
             ->where('user_id', $user->id)
-            ->whereNotNull('deleted_by_admin_at')
+            ->where(function ($q) {
+                $q->whereNotNull('deleted_by_admin_at')
+                  ->orWhereHas('reports');
+            })
             ->with('category')
             ->latest()
             ->get();
@@ -250,6 +264,13 @@ class AdminController extends Controller
         return back()->with('success', 'Zgłoszenie oznaczone jako rozwiązane.');
     }
 
+    public function dismissReport(QuizReport $report)
+    {
+        $report->delete();
+
+        return back()->with('success', 'Zgłoszenie zostało usunięte z listy.');
+    }
+
     public function banUser(Request $request, User $user)
     {
         $request->validate([
@@ -257,7 +278,7 @@ class AdminController extends Controller
         ]);
 
         $user->update([
-            'banned_until' => now()->addDays($request->days),
+            'banned_until' => now()->addDays((int) $request->days),
         ]);
 
         return back()->with('success', "Użytkownik {$user->name} zbanowany na {$request->days} dni.");

@@ -325,7 +325,34 @@
                             </div>
                         </div>
 
-                        <div style="display:flex;gap:7px;flex-shrink:0;">
+                        <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;flex-wrap:wrap;">
+
+                            {{-- Ban author --}}
+                            @if($report->quiz?->user && !$report->quiz->user->is_admin)
+                                @if($report->quiz->user->isBanned())
+                                    <form method="POST" action="{{ route('admin.user.unban', $report->quiz->user) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="dash-icon-btn" title="Zdejmij ban autora" style="border-color:rgba(74,222,128,.2);">
+                                            🔓
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('admin.user.ban', $report->quiz->user) }}"
+                                          style="display:flex;gap:5px;align-items:center;"
+                                          onsubmit="return confirm('Zbanować {{ addslashes($report->quiz->user->name) }}?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="number" name="days" min="1" max="3650" placeholder="dni"
+                                               class="auth-input" style="width:65px;padding:7px 9px;font-size:12px;">
+                                        <button type="submit" class="dash-icon-btn" title="Banuj autora" style="border-color:rgba(242,165,65,.25);">
+                                            🔒
+                                        </button>
+                                    </form>
+                                @endif
+                            @endif
+
+                            {{-- Resolve --}}
                             @if($report->status !== 'resolved')
                                 <form method="POST" action="{{ route('admin.report.resolve', $report) }}">
                                     @csrf
@@ -336,6 +363,7 @@
                                 </form>
                             @endif
 
+                            {{-- Delete quiz --}}
                             @if($report->quiz && !$report->quiz->trashed())
                                 <form method="POST" action="{{ route('admin.quiz.delete', $report->quiz) }}"
                                       onsubmit="return confirm('Usunąć quiz?')">
@@ -346,6 +374,17 @@
                                     </button>
                                 </form>
                             @endif
+
+                            {{-- Dismiss report (no ban) --}}
+                            <form method="POST" action="{{ route('admin.report.dismiss', $report) }}"
+                                  onsubmit="return confirm('Usunąć zgłoszenie bez bana?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="dash-icon-btn" title="Usuń zgłoszenie" style="border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.4);">
+                                    ✕
+                                </button>
+                            </form>
+
                         </div>
                     </div>
                 @empty
@@ -389,7 +428,7 @@
 
             <div class="dash-panel">
                 <div class="dash-panel__head">
-                    <h2 class="dash-panel__title">Użytkownicy z usuniętymi quizami ({{ $users->total() }})</h2>
+                    <h2 class="dash-panel__title">Użytkownicy ({{ $users->total() }})</h2>
                 </div>
 
                 @forelse($users as $u)
@@ -403,7 +442,12 @@
 
                             <div class="dash-quiz-item__meta">
                                 {{ $u->email }}
-                                · 🗑 {{ $u->deleted_quizzes_count }} usuniętych quizów
+                                @if($u->deleted_quizzes_count > 0)
+                                    · 🗑 {{ $u->deleted_quizzes_count }} usuniętych quizów
+                                @endif
+                                @if($u->reported_quizzes_count > 0)
+                                    · 🚨 {{ $u->reported_quizzes_count }} zgłoszonych quizów
+                                @endif
 
                                 @if($u->isBanned())
                                     · <span style="color:#f87171;">🔒 ban do {{ $u->banned_until->format('d.m.Y') }}</span>
@@ -445,7 +489,7 @@
                 @empty
                     <div class="dash-empty">
                         <div class="dash-empty__icon">👥</div>
-                        <p>Brak użytkowników z usuniętymi quizami.</p>
+                        <p>Brak użytkowników do wyświetlenia.</p>
                     </div>
                 @endforelse
 
@@ -467,7 +511,7 @@
 
             <div class="dash-panel">
                 <div class="dash-panel__head">
-                    <h2 class="dash-panel__title">Usunięte quizy: {{ $user->name }}</h2>
+                    <h2 class="dash-panel__title">Quizy użytkownika: {{ $user->name }}</h2>
                     <span style="font-size:13px;color:rgba(255,255,255,.35);">
                         {{ $quizzes->count() }} quizów
                     </span>
@@ -498,7 +542,7 @@
                 @empty
                     <div class="dash-empty">
                         <div class="dash-empty__icon">📋</div>
-                        <p>Brak usuniętych quizów.</p>
+                        <p>Ten użytkownik nie ma żadnych quizów.</p>
                     </div>
                 @endforelse
             </div>
