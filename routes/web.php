@@ -28,6 +28,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports',     [AdminController::class, 'reports'])->name('reports');
     Route::get('/users',       [AdminController::class, 'users'])->name('users');
     Route::get('/users/{user}/quizzes', [AdminController::class, 'userQuizzes'])->name('user.quizzes');
+    Route::get('/quizzes/{quizId}/preview',    [AdminController::class, 'previewQuiz'])->name('quiz.preview');
     Route::delete('/quizzes/{quiz}',           [AdminController::class, 'deleteQuiz'])->name('quiz.delete');
     Route::delete('/reports/{report}/dismiss', [AdminController::class, 'dismissReport'])->name('report.dismiss');
     Route::patch('/reports/{report}/resolve',  [AdminController::class, 'resolveReport'])->name('report.resolve');

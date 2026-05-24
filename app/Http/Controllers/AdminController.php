@@ -237,6 +237,21 @@ class AdminController extends Controller
         return view('admin-dashboard', compact('user', 'quizzes', 'tab'));
     }
 
+    // ── Quiz preview ─────────────────────────────────────
+    public function previewQuiz(int $quizId)
+    {
+        $quiz = Quiz::withTrashed()
+            ->with(['user', 'category'])
+            ->withCount('reports')
+            ->findOrFail($quizId);
+
+        $questions = $quiz->questions()
+            ->orderBy('quiz_question.question_order')
+            ->get();
+
+        return view('admin-quiz-preview', compact('quiz', 'questions'));
+    }
+
     // ── Actions ───────────────────────────────────────────
     public function deleteQuiz(Quiz $quiz)
     {
@@ -247,8 +262,7 @@ class AdminController extends Controller
             'deleted_by_admin_user_id' => Auth::id(),
         ]);
 
-        $quiz->questions()->detach();
-        $quiz->delete();
+        $quiz->delete(); // soft delete — pivot stays intact for preview
 
         return back()->with('success', "Quiz \"{$quizTitle}\" został usunięty.");
     }

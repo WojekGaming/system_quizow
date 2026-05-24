@@ -152,14 +152,21 @@
                             </div>
                         </div>
 
-                        <form method="POST" action="{{ route('admin.quiz.delete', $quiz) }}"
-                              onsubmit="return confirm('Na pewno usunąć quiz: {{ addslashes($quiz->title) }}?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="dash-icon-btn" title="Usuń" style="border-color:rgba(220,50,50,.2);">
-                                🗑
-                            </button>
-                        </form>
+                        <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
+                            <a href="{{ route('admin.quiz.preview', $quiz->id) }}"
+                               class="dash-icon-btn" title="Podgląd pytań">
+                                👁
+                            </a>
+
+                            <form method="POST" action="{{ route('admin.quiz.delete', $quiz) }}"
+                                  onsubmit="return confirm('Na pewno usunąć quiz: {{ addslashes($quiz->title) }}?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="dash-icon-btn" title="Usuń" style="border-color:rgba(220,50,50,.2);">
+                                    🗑
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 @empty
                     <div class="dash-empty">
@@ -326,6 +333,14 @@
                         </div>
 
                         <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;flex-wrap:wrap;">
+
+                            {{-- Preview quiz --}}
+                            @if($report->quiz)
+                                <a href="{{ route('admin.quiz.preview', $report->quiz->id) }}"
+                                   class="dash-icon-btn" title="Podgląd pytań">
+                                    👁
+                                </a>
+                            @endif
 
                             {{-- Ban author --}}
                             @if($report->quiz?->user && !$report->quiz->user->is_admin)
@@ -537,6 +552,24 @@
                                     · <span style="color:#f87171;">przez admina</span>
                                 @endif
                             </div>
+                        </div>
+
+                        <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
+                            <a href="{{ route('admin.quiz.preview', $quiz->id) }}"
+                               class="dash-icon-btn" title="Podgląd pytań">
+                                👁
+                            </a>
+
+                            @if(!$quiz->trashed())
+                                <form method="POST" action="{{ route('admin.quiz.delete', $quiz) }}"
+                                      onsubmit="return confirm('Na pewno usunąć quiz: {{ addslashes($quiz->title) }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="dash-icon-btn" title="Usuń" style="border-color:rgba(220,50,50,.2);">
+                                        🗑
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 @empty
