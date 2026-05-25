@@ -116,6 +116,51 @@
             z-index: 999; opacity: 0; transform: translateY(10px); transition: .3s ease; pointer-events: none;
         }
         .qb-toast.show { opacity: 1; transform: translateY(0); }
+        /* ── DB question read-only preview ── */
+        .db-preview-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(93,188,216,0.1); border: 1px solid rgba(93,188,216,0.25);
+            color: #5bc8d8; font-size: 12px; font-weight: 700;
+            padding: 4px 10px; border-radius: 20px; letter-spacing: .3px;
+        }
+        .db-preview-lock-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.25);
+            color: #ff6b00; font-size: 12px; font-weight: 700;
+            padding: 4px 10px; border-radius: 20px;
+        }
+        .db-q-card {
+            background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 18px;
+        }
+        .db-q-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .db-q-card-num {
+            font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35);
+            text-transform: uppercase; letter-spacing: .6px;
+        }
+        .db-q-type-badge {
+            font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+            background: rgba(93,188,216,0.1); border: 1px solid rgba(93,188,216,0.2); color: #5bc8d8;
+        }
+        .db-q-text { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.45; }
+        .db-q-image { max-width: 100%; max-height: 280px; object-fit: contain; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
+        .db-answers-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+        .db-answer-tile {
+            background: var(--panel2); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 13px; padding: 14px; display: flex; align-items: flex-start; gap: 12px;
+        }
+        .db-answer-tile.db-correct {
+            border-color: rgba(46,158,91,0.45); background: rgba(46,158,91,0.07);
+        }
+        .db-answer-letter {
+            width: 30px; height: 30px; border-radius: 50%; background: #494D50; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 13px; color: #fff;
+        }
+        .db-answer-tile.db-correct .db-answer-letter { background: rgba(46,158,91,0.6); }
+        .db-answer-text { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.4; padding-top: 5px; }
+        .db-correct-label { font-size: 11px; color: #4ade80; font-weight: 700; margin-top: 3px; }
+
         @media (max-width: 1100px) {
             .qb-app { grid-template-columns: 1fr; }
             .qb-sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -236,7 +281,24 @@
             </div>
         </div>
 
-        <section class="qb-editor">
+        <section class="qb-editor" id="dbPreviewSection" style="display:none;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+                <span class="db-preview-lock-badge">🔒 Pytanie z bazy — tylko odczyt</span>
+                <span class="db-preview-badge" id="dbTypeBadge"></span>
+            </div>
+            <div class="db-q-card">
+                <div class="db-q-card-header">
+                    <span class="db-q-card-num" id="dbQNum"></span>
+                </div>
+                <div class="db-q-text" id="dbQText"></div>
+                <div class="db-answers-grid" id="dbAnswersGrid"></div>
+            </div>
+            <div class="qb-editor-actions" style="margin-top:4px;">
+                <button class="qb-btn qb-btn-danger" type="button" id="deleteQuestionBtnDb">🗑 Usuń pytanie</button>
+            </div>
+        </section>
+
+        <section class="qb-editor" id="editorSection">
             <div class="qb-editor-grid">
                 <div class="qb-editor-block">
                     <h3>Treść pytania</h3>
@@ -407,23 +469,76 @@ function renderAnswers() {
 function switchTo(i) {
     currentQ = i;
     const q = questions[i];
-    questionText.value = q.text;
-    questionType.value = q.type;
-    workspaceTitle.textContent = `Edytujesz: Pytanie ${i + 1}`;
-    if (questionImages[q.id]) {
-        previewImg.src = URL.createObjectURL(questionImages[q.id]);
-        previewImg.style.display = 'block';
-        uploadPlaceholder.style.display = 'none';
-        fileName.textContent = questionImages[q.id].name;
+    const isDbReadOnly = q.from_db && !q.can_edit;
+
+    workspaceTitle.textContent = `${isDbReadOnly ? 'Podgląd' : 'Edytujesz'}: Pytanie ${i + 1}`;
+
+    const editorSection    = document.getElementById('editorSection');
+    const dbPreviewSection = document.getElementById('dbPreviewSection');
+
+    if (isDbReadOnly) {
+        editorSection.style.display    = 'none';
+        dbPreviewSection.style.display = 'grid';
+        renderDbPreview(i);
     } else {
-        previewImg.src = '';
-        previewImg.style.display = 'none';
-        uploadPlaceholder.style.display = 'block';
-        fileName.textContent = 'Nie wybrano pliku';
+        dbPreviewSection.style.display = 'none';
+        editorSection.style.display    = 'grid';
+
+        questionText.value = q.text;
+        questionType.value = q.type;
+
+        if (questionImages[q.id]) {
+            previewImg.src = URL.createObjectURL(questionImages[q.id]);
+            previewImg.style.display = 'block';
+            uploadPlaceholder.style.display = 'none';
+            fileName.textContent = questionImages[q.id].name;
+        } else {
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+            uploadPlaceholder.style.display = 'block';
+            fileName.textContent = 'Nie wybrano pliku';
+        }
+
+        renderAnswers();
+        applyEditability();
     }
-    renderAnswers();
+
     renderList();
-    applyEditability();
+}
+
+function renderDbPreview(i) {
+    const q = questions[i];
+    const letters = ['A','B','C','D'];
+    const typeMap = { single_choice: 'Jedna poprawna', multiple_choice: 'Wiele poprawnych', true_false: 'Prawda / Fałsz' };
+
+    document.getElementById('dbQNum').textContent    = `Pytanie ${i + 1} z ${questions.length}`;
+    document.getElementById('dbTypeBadge').textContent = typeMap[q.type] || q.type;
+    document.getElementById('dbQText').textContent    = q.text || '—';
+
+    const answers = (q.answers || []).filter(a => a !== '');
+    const grid = document.getElementById('dbAnswersGrid');
+    grid.innerHTML = '';
+    answers.forEach((ans, idx) => {
+        const isCorrect = (q.correct || []).includes(idx);
+        const tile = document.createElement('div');
+        tile.className = 'db-answer-tile' + (isCorrect ? ' db-correct' : '');
+        tile.innerHTML = `
+            <div class="db-answer-letter">${letters[idx] || String.fromCharCode(65 + idx)}</div>
+            <div>
+                <div class="db-answer-text">${ans || '—'}</div>
+                ${isCorrect ? '<div class="db-correct-label">✓ Poprawna</div>' : ''}
+            </div>`;
+        grid.appendChild(tile);
+    });
+
+    // Wire up delete button inside the preview
+    document.getElementById('deleteQuestionBtnDb').onclick = () => {
+        if (questions.length === 1) { showToast('Quiz musi mieć co najmniej 1 pytanie', '#f87171'); return; }
+        delete questionImages[questions[currentQ].id];
+        questions.splice(currentQ, 1);
+        switchTo(Math.min(currentQ, questions.length - 1));
+        showToast('Pytanie usunięte');
+    };
 }
 
 quizCategory.addEventListener('change', () => {
