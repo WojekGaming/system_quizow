@@ -31,31 +31,65 @@ class QuizController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'title'       => 'required|string|max:150',
-            'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:categories,id',
-            'is_premium'  => 'boolean',
-            'is_active'   => 'boolean',
-        ]);
+{
+    $request->validate([
+        'title'          => 'required|string|max:150',
+        'description'    => 'nullable|string',
+        'category_id'    => 'nullable|exists:categories,id',
+        'is_premium'     => 'nullable',
+        'is_active'      => 'nullable',
+        'questions_json' => 'required|string',
+    ]);
 
-        $quiz = Quiz::create([
-            'user_id'     => Auth::id(),
-            'title'       => $request->title,
-            'description' => $request->description,
-            'category_id' => $request->category_id ?: null,
-            'is_premium'  => $request->boolean('is_premium'),
-            'is_active'   => $request->boolean('is_active', true),
-        ]);
+    $quiz = Quiz::create([
+        'user_id'     => Auth::id(),
+        'title'       => $request->title,
+        'description' => $request->description,
+        'category_id' => $request->category_id ?: null,
 
-        if ($request->filled('questions_json')) {
-            $this->syncQuestions($quiz, $request->input('questions_json'), $request->allFiles());
-        }
+        // TYLKO użytkownik Premium może stworzyć quiz Premium
+        'is_premium'  => $request->boolean('is_premium') && auth()->user()->isPremium(),
 
-        return redirect()->route('quizzes.edit', $quiz)
-            ->with('success', 'Quiz został stworzony!');
+        'is_active'   => $request->is_active !== '0',
+    ]);
+
+    $questionsData = json_decode($request->questions_json, true);
+
+    if (!is_array($questionsData) || count($questionsData) === 0) {
+        $quiz->delete();
+
+        return back()
+            ->withInput()
+            ->with('error', 'Quiz musi mieć przynajmniej jedno pytanie.');
     }
+
+    $order = 1;
+
+    foreach ($questionsData as $qData) {
+        $question = \App\Models\Question::create([
+            'creator_id'       => Auth::id(),
+            'category_id'      => $request->category_id ?: null,
+            'content'          => $qData['text'] ?? '',
+            'question_type'    => $qData['type'] ?? 'single_choice',
+            'answers'          => json_encode(array_values(array_filter($qData['answers'] ?? [], fn ($a) => $a !== ''))),
+            'correct_answers'  => json_encode($qData['correct'] ?? []),
+            'is_public_base'   => false,
+        ]);
+
+        $quiz->questions()->attach($question->id, [
+            'question_order' => $order++,
+            'points'         => 1,
+        ]);
+    }
+
+    $quiz->update([
+        'questions_count' => count($questionsData),
+    ]);
+
+    return redirect()
+        ->route('quizzes.index')
+        ->with('success', "Quiz \"{$quiz->title}\" został stworzony z {$quiz->questions_count} pytaniami!");
+}
 
     public function edit(Quiz $quiz)
     {
@@ -92,12 +126,15 @@ class QuizController extends Controller
         ]);
 
         $quiz->update([
-            'title'       => $request->title,
-            'description' => $request->description,
-            'category_id' => $request->category_id ?: null,
-            'is_premium'  => $request->boolean('is_premium'),
-            'is_active'   => $request->boolean('is_active'),
-        ]);
+    'title'       => $request->title,
+    'description' => $request->description,
+    'category_id' => $request->category_id ?: null,
+
+    // TYLKO użytkownik Premium może ustawić quiz jako Premium
+    'is_premium'  => $request->boolean('is_premium') && auth()->user()->isPremium(),
+
+    'is_active'   => $request->boolean('is_active'),
+]);
 
         if ($request->filled('questions_json')) {
             $this->syncQuestions($quiz, $request->input('questions_json'), $request->allFiles());
