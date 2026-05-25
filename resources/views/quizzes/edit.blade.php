@@ -497,12 +497,23 @@ function renderAvailableQuestions(list) {
                 from_db: true,
                 can_edit: !!q.can_edit
             };
+            
+            // If user cannot edit this question, convert it to a new temp question
+            // This ensures edits create a copy instead of modifying the original
+            if (!q.can_edit) {
+                newQ.id = 'temp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+                newQ.is_copy_of_db = q.id; // Store reference to original
+            }
+            
             saveCurrentToState();
             questions.push(newQ);
             switchTo(questions.length - 1);
             // Usunięcie elementu z DOM-u - pytanie natychmiast znika z listy
             el.remove();
-            showToast('Dodano pytanie z bazy');
+            const msg = !q.can_edit 
+                ? 'Dodano kopię pytania z bazy (możesz ją edytować)' 
+                : 'Dodano pytanie z bazy';
+            showToast(msg);
         });
         el.appendChild(btn);
         box.appendChild(el);
