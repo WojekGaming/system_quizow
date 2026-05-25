@@ -678,9 +678,20 @@
                 </div>
                 <div class="qcard__foot">
                     <div class="qcard__author">
-                        <div class="author-av">{{ strtoupper(substr($quiz->user->name ?? 'A',0,1)) }}</div>
-                        <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
-                    </div>
+    <div class="author-av">
+        @if($quiz->user && $quiz->user->avatar_path)
+            <img
+                src="{{ asset('storage/' . $quiz->user->avatar_path) }}"
+                alt="{{ $quiz->user->name }}"
+                style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
+            >
+        @else
+            {{ strtoupper(substr($quiz->user->name ?? 'A', 0, 1)) }}
+        @endif
+    </div>
+
+    <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
+</div>
                     <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj →</a>
                 </div>
             </div>
@@ -716,9 +727,20 @@
                 </div>
                 <div class="qcard__foot">
                     <div class="qcard__author">
-                        <div class="author-av">{{ strtoupper(substr($quiz->user->name ?? 'A',0,1)) }}</div>
-                        <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
-                    </div>
+    <div class="author-av">
+        @if($quiz->user && $quiz->user->avatar_path)
+            <img
+                src="{{ asset('storage/' . $quiz->user->avatar_path) }}"
+                alt="{{ $quiz->user->name }}"
+                style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"
+            >
+        @else
+            {{ strtoupper(substr($quiz->user->name ?? 'A', 0, 1)) }}
+        @endif
+    </div>
+
+    <span class="author-name">{{ $quiz->user->name ?? 'Anonimowy' }}</span>
+</div>
                     <a href="{{ route('quiz.show', $quiz) }}" class="qcard__play">Zagraj →</a>
                 </div>
             </div>
