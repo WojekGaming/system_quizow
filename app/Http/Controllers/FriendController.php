@@ -15,19 +15,23 @@ class FriendController extends Controller
 
         // Accepted friends
         $friends = User::whereIn('id', function ($q) use ($user) {
-                $q->select('requester_id')->from('friendships')
-                  ->where('addressee_id', $user->id)->where('status', 'accepted');
+                $q->select('requester_id')
+                    ->from('friendships')
+                    ->where('addressee_id', $user->id)
+                    ->where('status', 'accepted');
             })
             ->orWhereIn('id', function ($q) use ($user) {
-                $q->select('addressee_id')->from('friendships')
-                  ->where('requester_id', $user->id)->where('status', 'accepted');
+                $q->select('addressee_id')
+                    ->from('friendships')
+                    ->where('requester_id', $user->id)
+                    ->where('status', 'accepted');
             })
             ->withCount('quizzes')
             ->with(['quizAttempts' => function ($q) {
                 $q->with('quiz:id,title')
-                  ->whereNotNull('finished_at')
-                  ->latest('finished_at')
-                  ->limit(5);
+                    ->whereNotNull('finished_at')
+                    ->latest('finished_at')
+                    ->limit(5);
             }])
             ->get();
 
@@ -47,12 +51,15 @@ class FriendController extends Controller
 
         // Search
         $searchResults = collect();
+
         if ($request->filled('search')) {
             $friendIds = $friends->pluck('id')->push($user->id);
             $pendingSentIds = $pendingSent->pluck('addressee_id');
 
-            $searchResults = User::where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%')
+            $searchResults = User::where(function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                        ->orWhere('email', 'like', '%' . $request->search . '%');
+                })
                 ->whereNotIn('id', $friendIds)
                 ->whereNull('deleted_at')
                 ->take(10)
@@ -64,13 +71,21 @@ class FriendController extends Controller
         }
 
         return view('friends.index', compact(
-            'friends', 'pendingReceived', 'pendingSent', 'searchResults'
+            'friends',
+            'pendingReceived',
+            'pendingSent',
+            'searchResults'
         ));
     }
 
     public function sendRequest(User $user)
     {
         $me = Auth::user();
+
+        // Nie można dodać samego siebie
+        if ($user->id === $me->id) {
+            return back()->with('error', 'Nie możesz dodać samego siebie do znajomych.');
+        }
 
         if (!$me->canAddFriend()) {
             return back()->with('error', 'Masz już maksymalną liczbę 10 znajomych.');
@@ -82,18 +97,24 @@ class FriendController extends Controller
 
         // Check not already friends or pending
         $exists = Friendship::where(function ($q) use ($me, $user) {
-            $q->where('requester_id', $me->id)->where('addressee_id', $user->id);
-        })->orWhere(function ($q) use ($me, $user) {
-            $q->where('requester_id', $user->id)->where('addressee_id', $me->id);
-        })->exists();
+                $q->where('requester_id', $me->id)
+                    ->where('addressee_id', $user->id);
+            })
+            ->orWhere(function ($q) use ($me, $user) {
+                $q->where('requester_id', $user->id)
+                    ->where('addressee_id', $me->id);
+            })
+            ->exists();
 
-        if (!$exists) {
-            Friendship::create([
-                'requester_id' => $me->id,
-                'addressee_id' => $user->id,
-                'status'       => 'pending',
-            ]);
+        if ($exists) {
+            return back()->with('error', 'Zaproszenie już istnieje albo jesteście już znajomymi.');
         }
+
+        Friendship::create([
+            'requester_id' => $me->id,
+            'addressee_id' => $user->id,
+            'status'       => 'pending',
+        ]);
 
         return back()->with('success', 'Zaproszenie wysłane!');
     }
@@ -125,7 +146,9 @@ class FriendController extends Controller
     {
         abort_if($friendship->addressee_id !== Auth::id(), 403);
 
-        $friendship->update(['status' => 'rejected']);
+        $friendship->update([
+            'status' => 'rejected',
+        ]);
 
         return back()->with('success', 'Odrzucono zaproszenie.');
     }

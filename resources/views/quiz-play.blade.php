@@ -61,174 +61,228 @@
     {{-- Backdrop --}}
     <div
         onclick="closeReportModal()"
-        style="position:absolute;inset:0;background:rgba(0,0,0,0.68);backdrop-filter:blur(4px);"
+        style="
+            position:absolute;
+            inset:0;
+            background:rgba(0,0,0,0.68);
+            backdrop-filter:blur(4px);
+        "
     ></div>
 
-    {{-- Panel --}}
-    <div style="
+    {{-- Panel / Form --}}
+    <form method="POST" action="{{ route('quiz.report', $quiz) }}" style="
         position:relative;
         z-index:1;
         width:min(480px,100%);
         margin-top:60px;
         background:rgba(47,51,54,0.98);
-        border:1px solid rgba(199,202,204,0.16);
+        border:1px solid rgba(255,107,0,0.24);
         border-radius:20px;
         padding:28px 28px 24px;
-        box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03);
+        box-shadow:
+            0 24px 64px rgba(0,0,0,0.6),
+            0 0 24px rgba(255,107,0,0.10),
+            0 0 0 1px rgba(255,255,255,0.03);
     ">
+        @csrf
+
         {{-- Nagłówek --}}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
             <div style="display:flex;align-items:center;gap:10px;">
                 <div style="
-                    width:32px;height:32px;border-radius:10px;
+                    width:32px;
+                    height:32px;
+                    border-radius:10px;
                     background:rgba(255,107,0,0.14);
-                    border:1px solid rgba(255,107,0,0.35);
+                    border:1px solid rgba(255,107,0,0.42);
                     color:#FF6B00;
-                    display:flex;align-items:center;justify-content:center;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
                     font-size:16px;
                 ">⚑</div>
-                <span style="color:#E6E8EA;font-weight:700;font-size:17px;">Zgłoś quiz</span>
+
+                <span style="color:#E6E8EA;font-weight:700;font-size:17px;">
+                    Zgłoś quiz
+                </span>
             </div>
 
             <button
+                type="button"
                 onclick="closeReportModal()"
                 style="
                     background:rgba(73,77,80,0.45);
                     border:1px solid rgba(199,202,204,0.16);
                     color:rgba(230,232,234,0.62);
                     border-radius:8px;
-                    width:30px;height:30px;
+                    width:30px;
+                    height:30px;
                     cursor:pointer;
                     font-size:16px;
-                    display:flex;align-items:center;justify-content:center;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
                     font-family:'Outfit',sans-serif;
                     transition:.15s;
                 "
-                onmouseover="this.style.color='#E6E8EA';this.style.borderColor='rgba(255,107,0,0.42)';this.style.background='rgba(73,77,80,0.7)'"
-                onmouseout="this.style.color='rgba(230,232,234,0.62)';this.style.borderColor='rgba(199,202,204,0.16)';this.style.background='rgba(73,77,80,0.45)'"
-            >✕</button>
+                onmouseover="
+                    this.style.color='#E6E8EA';
+                    this.style.borderColor='rgba(255,107,0,0.42)';
+                    this.style.background='rgba(73,77,80,0.7)';
+                "
+                onmouseout="
+                    this.style.color='rgba(230,232,234,0.62)';
+                    this.style.borderColor='rgba(199,202,204,0.16)';
+                    this.style.background='rgba(73,77,80,0.45)';
+                "
+            >
+                ✕
+            </button>
         </div>
 
         {{-- Powody --}}
         <div style="margin-bottom:18px;">
-            <div style="color:rgba(230,232,234,0.62);font-size:12px;letter-spacing:.3px;text-transform:uppercase;margin-bottom:10px;">
+            <div style="
+                color:rgba(230,232,234,0.62);
+                font-size:12px;
+                letter-spacing:.3px;
+                text-transform:uppercase;
+                margin-bottom:10px;
+            ">
                 Powód zgłoszenia
             </div>
 
             <div style="display:flex;flex-direction:column;gap:8px;" id="reportReasons">
                 @foreach([
-                    ['spam',        '🚫', 'Spam lub reklama'],
-                    ['inappropriate','⚠️', 'Nieodpowiednia treść'],
-                    ['wrong',       '❌', 'Błędne odpowiedzi'],
-                    ['copyright',   '©',  'Naruszenie praw autorskich'],
-                    ['other',       '💬', 'Inny powód'],
+                    ['spam', '🚫', 'Spam lub reklama'],
+                    ['inappropriate', '⚠️', 'Nieodpowiednia treść'],
+                    ['wrong', '❌', 'Błędne odpowiedzi'],
+                    ['copyright', '©', 'Naruszenie praw autorskich'],
+                    ['other', '💬', 'Inny powód'],
                 ] as [$val, $icon, $label])
-                <label style="
-                    display:flex;align-items:center;gap:12px;
-                    padding:11px 14px;
-                    border-radius:12px;
-                    border:1px solid rgba(199,202,204,0.12);
-                    background:rgba(73,77,80,0.32);
-                    cursor:pointer;
-                    transition:.15s;
-                    color:rgba(230,232,234,0.78);
-                    font-size:14px;
-                " class="report-reason-label">
-                    <input
-                        type="radio"
-                        name="report_reason"
-                        value="{{ $val }}"
-                        onchange="onReasonChange(this)"
-                        style="accent-color:#FF6B00;width:16px;height:16px;flex-shrink:0;"
+                    <label
+                        class="report-reason-label"
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:12px;
+                            padding:11px 14px;
+                            border-radius:12px;
+                            border:1px solid rgba(199,202,204,0.12);
+                            background:rgba(73,77,80,0.32);
+                            cursor:pointer;
+                            transition:.15s;
+                            color:rgba(230,232,234,0.78);
+                            font-size:14px;
+                        "
                     >
-                    <span style="font-size:15px;">{{ $icon }}</span>
-                    {{ $label }}
-                </label>
+                        <input
+                            type="radio"
+                            name="report_type"
+                            value="{{ $val }}"
+                            onchange="onReasonChange(this)"
+                            style="
+                                accent-color:#FF6B00;
+                                width:16px;
+                                height:16px;
+                                flex-shrink:0;
+                            "
+                        >
+
+                        <span style="font-size:15px;">{{ $icon }}</span>
+
+                        {{ $label }}
+                    </label>
                 @endforeach
             </div>
         </div>
 
         {{-- Opis --}}
-        <div id="reportDescWrap" style="margin-bottom:18px;">
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
-                <div style="color:rgba(230,232,234,0.62);font-size:12px;letter-spacing:.3px;text-transform:uppercase;">
-                    Opis
-                </div>
-                <div id="reportDescHint" style="color:rgba(154,160,166,0.9);font-size:11px;">opcjonalny</div>
-            </div>
+        <div style="margin-bottom:20px;">
+            <label
+                for="reportReasonText"
+                style="
+                    display:block;
+                    color:rgba(230,232,234,0.62);
+                    font-size:12px;
+                    letter-spacing:.3px;
+                    text-transform:uppercase;
+                    margin-bottom:8px;
+                "
+            >
+                Dodatkowy opis
+            </label>
 
             <textarea
-                id="reportDescInput"
-                placeholder="Opisz szczegółowo problem…"
-                maxlength="500"
-                rows="3"
+                id="reportReasonText"
+                name="reason"
+                rows="4"
+                placeholder="Opcjonalnie napisz więcej..."
                 style="
                     width:100%;
-                    background:rgba(31,34,37,0.72);
-                    border:1px solid rgba(199,202,204,0.14);
-                    border-radius:12px;
-                    color:#E6E8EA;
-                    font-size:14px;
-                    font-family:'Outfit',sans-serif;
-                    padding:11px 14px;
                     resize:vertical;
+                    min-height:96px;
+                    border-radius:12px;
+                    border:1px solid rgba(199,202,204,0.14);
+                    background:rgba(31,34,36,0.82);
+                    color:#E6E8EA;
+                    padding:12px 14px;
+                    font-family:'Outfit',sans-serif;
+                    font-size:14px;
                     outline:none;
-                    transition:.15s;
-                    box-sizing:border-box;
                 "
-                onfocus="this.style.borderColor='rgba(255,107,0,0.65)'"
+                onfocus="this.style.borderColor='rgba(255,107,0,0.55)'"
                 onblur="this.style.borderColor='rgba(199,202,204,0.14)'"
             ></textarea>
+
+            <p style="
+                margin-top:7px;
+                color:rgba(230,232,234,0.38);
+                font-size:12px;
+                line-height:1.5;
+            ">
+                Zgłoszenie trafi do moderacji. Administrator sprawdzi quiz i podejmie decyzję.
+            </p>
         </div>
 
         {{-- Przyciski --}}
-        <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
             <button
+                type="button"
                 onclick="closeReportModal()"
                 style="
-                    background:rgba(73,77,80,0.45);
-                    border:1px solid rgba(199,202,204,0.16);
-                    color:rgba(230,232,234,0.72);
+                    padding:10px 16px;
                     border-radius:10px;
-                    padding:10px 18px;
-                    font-size:14px;
+                    background:rgba(73,77,80,0.45);
+                    border:1px solid rgba(199,202,204,0.14);
+                    color:rgba(230,232,234,0.72);
                     cursor:pointer;
                     font-family:'Outfit',sans-serif;
-                    transition:.15s;
+                    font-weight:700;
                 "
-                onmouseover="this.style.background='rgba(73,77,80,0.7)'"
-                onmouseout="this.style.background='rgba(73,77,80,0.45)'"
-            >Anuluj</button>
+            >
+                Anuluj
+            </button>
 
             <button
-                onclick="submitReport()"
-                id="reportSubmitBtn"
-                disabled
+                type="submit"
                 style="
-                    background:linear-gradient(135deg,#FF6B00,#E65F00);
-                    border:none;
-                    color:#fff;
+                    padding:10px 18px;
                     border-radius:10px;
-                    padding:10px 20px;
-                    font-size:14px;
-                    font-weight:700;
-                    cursor:not-allowed;
+                    background:linear-gradient(135deg,#FF6B00,#F2A541);
+                    border:1px solid rgba(255,107,0,0.55);
+                    color:#fff;
+                    cursor:pointer;
                     font-family:'Outfit',sans-serif;
-                    opacity:.45;
-                    transition:.15s;
-                    box-shadow:0 10px 24px rgba(255,107,0,0.24);
+                    font-weight:800;
+                    box-shadow:0 0 18px rgba(255,107,0,0.22);
                 "
-            >Wyślij zgłoszenie</button>
+            >
+                Wyślij zgłoszenie
+            </button>
         </div>
-    </div>
+    </form>
 </div>
-
-{{-- Ukryty formularz zgłoszenia --}}
-<form method="POST" action="{{ route('quiz.report', $quiz) }}" id="quizReportForm">
-    @csrf
-    <input type="hidden" name="reason" id="reportReasonInput" value="">
-    <input type="hidden" name="description" id="reportDescriptionInput" value="">
-</form>
 @endauth
 
 <div style="position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
@@ -324,9 +378,7 @@
                         <div style="color:rgba(230,232,234,0.45);font-size:12px;letter-spacing:.15px;">
                             Czas rozwiązywania
                         </div>
-                        <div id="timerDisplay" style="color:#E6E8EA;font-size:16px;font-weight:800;">
-                            00:00
-                        </div>
+                        <div class="timerDisplay" style="color:#fff;font-size:16px;font-weight:800;">00:00</div>
                     </div>
 
                     <span style="color:rgba(230,232,234,0.45);font-size:13px;">
@@ -475,7 +527,7 @@
     display: flex !important;
 }
 
-#reportDescInput::placeholder {
+#reportReasonText::placeholder {
     color: rgba(154,160,166,0.75);
 }
 </style>
@@ -493,12 +545,12 @@ function formatDuration(seconds) {
 
 function updateTimer() {
     const elapsed = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
-    const display = document.getElementById('timerDisplay');
-    const input = document.getElementById('timeSpentInput');
 
-    if (display) {
+    document.querySelectorAll('.timerDisplay').forEach(display => {
         display.textContent = formatDuration(elapsed);
-    }
+    });
+
+    const input = document.getElementById('timeSpentInput');
 
     if (input) {
         input.value = elapsed;
@@ -563,7 +615,6 @@ function prepareSubmit() {
 }
 
 // ===== MODAL ZGŁOSZENIA =====
-
 function openReportModal() {
     const modal = document.getElementById('reportModal');
     if (!modal) return;
@@ -571,18 +622,20 @@ function openReportModal() {
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
 
-    document.querySelectorAll('input[name="report_reason"]').forEach(r => r.checked = false);
+    document.querySelectorAll('input[name="report_type"]').forEach(radio => {
+        radio.checked = false;
+    });
 
-    const descInput = document.getElementById('reportDescInput');
-    if (descInput) descInput.value = '';
+    document.querySelectorAll('.report-reason-label').forEach(label => {
+        label.style.borderColor = 'rgba(199,202,204,0.12)';
+        label.style.background = 'rgba(73,77,80,0.32)';
+        label.style.color = 'rgba(230,232,234,0.78)';
+    });
 
-    updateReportDescHint('', false);
-
-    const btn = document.getElementById('reportSubmitBtn');
-    if (btn) {
-        btn.disabled = true;
-        btn.style.opacity = '.45';
-        btn.style.cursor = 'not-allowed';
+    const textarea = document.getElementById('reportReasonText');
+    if (textarea) {
+        textarea.value = '';
+        textarea.style.borderColor = 'rgba(199,202,204,0.14)';
     }
 }
 
@@ -594,55 +647,26 @@ function closeReportModal() {
     document.body.style.overflow = '';
 }
 
-function onReasonChange(radio) {
-    const isOther = radio.value === 'other';
-    updateReportDescHint(radio.value, isOther);
+function onReasonChange(input) {
+    document.querySelectorAll('.report-reason-label').forEach(label => {
+        label.style.borderColor = 'rgba(199,202,204,0.12)';
+        label.style.background = 'rgba(73,77,80,0.32)';
+        label.style.color = 'rgba(230,232,234,0.78)';
+    });
 
-    const btn = document.getElementById('reportSubmitBtn');
-    if (btn) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
+    const label = input.closest('.report-reason-label');
+
+    if (label) {
+        label.style.borderColor = 'rgba(255,107,0,0.55)';
+        label.style.background = 'rgba(255,107,0,0.12)';
+        label.style.color = '#E6E8EA';
     }
-}
-
-function updateReportDescHint(value, isOther) {
-    const hint = document.getElementById('reportDescHint');
-    const textarea = document.getElementById('reportDescInput');
-    if (!hint || !textarea) return;
-
-    if (isOther) {
-        hint.textContent = 'wymagany';
-        hint.style.color = 'rgba(214,69,69,0.85)';
-        textarea.placeholder = 'Opisz szczegółowo problem…';
-        textarea.style.borderColor = 'rgba(214,69,69,0.45)';
-    } else {
-        hint.textContent = 'opcjonalny';
-        hint.style.color = 'rgba(154,160,166,0.9)';
-        textarea.placeholder = 'Opisz szczegółowo problem…';
-        textarea.style.borderColor = 'rgba(199,202,204,0.14)';
-    }
-}
-
-function submitReport() {
-    const reason = document.querySelector('input[name="report_reason"]:checked');
-    const desc = document.getElementById('reportDescInput');
-
-    if (!reason) return;
-
-    if (reason.value === 'other' && (!desc || !desc.value.trim())) {
-        desc.style.borderColor = 'rgba(214,69,69,0.75)';
-        desc.focus();
-        return;
-    }
-
-    document.getElementById('reportReasonInput').value = reason.value;
-    document.getElementById('reportDescriptionInput').value = desc ? desc.value.trim() : '';
-    document.getElementById('quizReportForm').submit();
 }
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeReportModal();
+    if (e.key === 'Escape') {
+        closeReportModal();
+    }
 });
 </script>
 
