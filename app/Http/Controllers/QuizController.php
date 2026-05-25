@@ -114,15 +114,23 @@ class QuizController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
+            'quiz_id'     => 'nullable|exists:quizzes,id',
         ]);
 
         $categoryId = $request->input('category_id');
+        $quizId     = $request->input('quiz_id');
+
+        // Get IDs of questions already in this quiz so we can exclude them
+        $excludeIds = $quizId
+            ? \App\Models\Quiz::withTrashed()->find($quizId)?->questions()->pluck('questions.id')->toArray() ?? []
+            : [];
 
         $questions = \App\Models\Question::where('category_id', $categoryId)
             ->where(function ($q) {
                 $q->where('is_public_base', true)
                   ->orWhere('creator_id', Auth::id());
             })
+            ->when(!empty($excludeIds), fn($q) => $q->whereNotIn('id', $excludeIds))
             ->orderBy('created_at', 'desc')
             ->limit(200)
             ->get()
@@ -137,7 +145,7 @@ class QuizController extends Controller
                     'correct'      => $correct ?? [],
                     'creator_id'   => $q->creator_id,
                     'creator_name' => $q->creator?->name,
-                    'can_edit'     => false, // questions from DB are always read-only when added to a new quiz
+                    'can_edit'     => false,
                     'image_path'   => $q->image_path,
                 ];
             });

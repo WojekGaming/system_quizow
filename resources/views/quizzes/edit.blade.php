@@ -453,17 +453,30 @@ quizCategory.addEventListener('change', () => {
     const box = document.getElementById('availableQuestions');
     box.innerHTML = 'Ładowanie...';
     if (!cat) { box.innerHTML = '<div class="small-note">Wybierz kategorię, aby zobaczyć pytania z bazy.</div>'; return; }
-    fetch('{{ route('quizzes.availableQuestions') }}?category_id=' + encodeURIComponent(cat))
+    fetch('{{ route('quizzes.availableQuestions') }}?category_id=' + encodeURIComponent(cat) + '&quiz_id={{ $quiz->id }}')
         .then(r => r.json())
         .then(data => renderAvailableQuestions(data.questions || []))
         .catch(err => { box.innerHTML = '<div class="small-note" style="color:#f87171">Błąd pobierania pytań</div>'; });
 });
 
+// Auto-fetch on page load if category is already selected
+if (quizCategory.value) {
+    fetch('{{ route('quizzes.availableQuestions') }}?category_id=' + encodeURIComponent(quizCategory.value) + '&quiz_id={{ $quiz->id }}')
+        .then(r => r.json())
+        .then(data => renderAvailableQuestions(data.questions || []))
+        .catch(() => {});
+}
+
 function renderAvailableQuestions(list) {
     const box = document.getElementById('availableQuestions');
     box.innerHTML = '';
-    if (!list.length) { box.innerHTML = '<div class="small-note">Brak pytań w tej kategorii.</div>'; return; }
-    list.forEach(q => {
+    
+    // Filtruj pytania - pokaż tylko te, które nie są już w quizu
+    const quizQuestionIds = new Set(questions.map(q => q.id));
+    const filteredList = list.filter(q => !quizQuestionIds.has(q.id));
+    
+    if (!filteredList.length) { box.innerHTML = '<div class="small-note">Brak pytań w tej kategorii.</div>'; return; }
+    filteredList.forEach(q => {
         const el = document.createElement('div');
         el.className = 'question-item';
         el.style.display = 'flex';
@@ -487,6 +500,8 @@ function renderAvailableQuestions(list) {
             saveCurrentToState();
             questions.push(newQ);
             switchTo(questions.length - 1);
+            // Usunięcie elementu z DOM-u - pytanie natychmiast znika z listy
+            el.remove();
             showToast('Dodano pytanie z bazy');
         });
         el.appendChild(btn);
