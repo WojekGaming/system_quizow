@@ -31,9 +31,11 @@ class StatsController extends Controller
             ->selectRaw('MAX(score_points / max_points * 100) as best')
             ->value('best');
 
-        $totalTime = QuizAttempt::where('user_id', $user->id)
+        $avgTime = QuizAttempt::where('user_id', Auth::id())
+            ->whereNotNull('started_at')
             ->whereNotNull('finished_at')
-            ->sum('duration_seconds');
+            ->selectRaw('AVG(TIMESTAMPDIFF(SECOND, started_at, finished_at)) as avg_time')
+            ->value('avg_time');
 
         // Recent 10 attempts with quiz title
         $recentAttempts = QuizAttempt::where('user_id', $user->id)
@@ -66,7 +68,11 @@ class StatsController extends Controller
 
         return view('stats.index', compact(
             'totalPlayed', 'totalCreated', 'avgScore', 'bestScore',
-            'totalTime', 'recentAttempts', 'myQuizzes', 'distribution'
+            'avgTime', 'recentAttempts', 'myQuizzes', 'distribution'
         ));
+        return view('stats.index', [
+            'totalTime' => $totalTime,
+            'avgTime' => $avgTime,
+        ]);
     }
 }

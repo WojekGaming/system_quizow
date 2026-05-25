@@ -32,6 +32,20 @@
             @else Spróbuj jeszcze raz 📚
             @endif
         </div>
+                @php
+            $minutes = floor(($timeSpent ?? 0) / 60);
+            $seconds = ($timeSpent ?? 0) % 60;
+        @endphp
+
+        <div class="dash-panel" style="margin-top:18px;text-align:center;">
+            <div style="color:rgba(230,232,234,0.55);font-size:13px;margin-bottom:6px;">
+                Czas rozwiązywania
+            </div>
+
+            <div style="color:#FF6B00;font-size:28px;font-weight:800;">
+                {{ str_pad($minutes, 2, '0', STR_PAD_LEFT) }}:{{ str_pad($seconds, 2, '0', STR_PAD_LEFT) }}
+            </div>
+        </div>
     </div>
 
     {{-- Results --}}

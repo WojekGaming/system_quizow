@@ -34,7 +34,7 @@
             </div>
             <div class="dash-stat">
                 <div class="dash-stat__icon">⏱</div>
-                <div class="dash-stat__value">{{ gmdate('H:i', $totalTime) }}</div>
+                <div class="dash-stat__value">{{ gmdate('H:i', $avgTime) }}</div>
                 <div class="dash-stat__label">Czas quizów</div>
             </div>
         </div>

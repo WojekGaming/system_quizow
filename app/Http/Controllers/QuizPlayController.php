@@ -143,7 +143,8 @@ class QuizPlayController extends Controller
             'results',
             'scorePoints',
             'maxPoints',
-            'percentage'
+            'percentage',
+            'timeSpent'
         ));
     }
 
