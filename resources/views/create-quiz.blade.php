@@ -323,10 +323,27 @@
                 <textarea id="quizDesc" class="qb-textarea" placeholder="Krótki opis quizu..."></textarea>
             </div>
 
-            <div class="qb-toggle-row">
-                <input type="checkbox" id="quizPremium">
-                <label for="quizPremium">Quiz Premium</label>
-            </div>
+@if(auth()->user()->isPremium())
+    <div class="qb-toggle-row">
+        <input
+            type="checkbox"
+            id="quizPremium"
+            name="is_premium"
+            value="1"
+            {{ old('is_premium') ? 'checked' : '' }}
+        >
+        <label for="quizPremium">Quiz Premium</label>
+    </div>
+@else
+    <input type="checkbox" id="quizPremium" style="display:none;">
+
+    <div class="small-note" style="margin-top:8px;">
+        Quizy Premium mogą tworzyć tylko użytkownicy Premium.
+        <a href="{{ route('premium.show') }}" style="color:#ff8c33;font-weight:700;">
+            Aktywuj Premium
+        </a>
+    </div>
+@endif
             <div class="qb-toggle-row" style="margin-top:8px;">
                 <input type="checkbox" id="quizActive" checked>
                 <label for="quizActive">Aktywny (widoczny publicznie)</label>
@@ -662,13 +679,16 @@ document.getElementById('saveQuizBtn').addEventListener('click', async () => {
         return;
     }
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', document.getElementById('quizDesc').value);
-    formData.append('category_id', document.getElementById('quizCategory').value);
-    formData.append('is_premium', document.getElementById('quizPremium').checked ? '1' : '0');
-    formData.append('is_active', document.getElementById('quizActive').checked ? '1' : '0');
-    formData.append('questions_json', JSON.stringify(questions));
+const formData = new FormData();
+formData.append('title', title);
+formData.append('description', document.getElementById('quizDesc').value);
+formData.append('category_id', document.getElementById('quizCategory').value);
+
+const premiumInput = document.getElementById('quizPremium');
+formData.append('is_premium', premiumInput && premiumInput.checked ? '1' : '0');
+
+formData.append('is_active', document.getElementById('quizActive').checked ? '1' : '0');
+formData.append('questions_json', JSON.stringify(questions));
 
     Object.entries(questionImages).forEach(([questionId, file]) => {
         formData.append(`question_images[${questionId}]`, file);

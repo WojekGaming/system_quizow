@@ -10,6 +10,7 @@ use App\Http\Controllers\StatsController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\QuizReportController;
+use App\Http\Controllers\PremiumController;
 
 // ── Public ────────────────────────────────────────────────
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -40,6 +41,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Premium
+    Route::get('/premium', [PremiumController::class, 'show'])->name('premium.show');
+    Route::post('/premium/buy', [PremiumController::class, 'buy'])->name('premium.buy');
 
     // Quizzes
     Route::get('/quizzes',             [QuizController::class, 'index'])->name('quizzes.index');

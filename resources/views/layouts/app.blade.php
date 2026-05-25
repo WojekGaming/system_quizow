@@ -30,10 +30,12 @@
                    class="app-nav__link {{ request()->routeIs('dashboard') ? 'app-nav__link--active' : '' }}">
                     Dashboard
                 </a>
+
                 <a href="{{ route('quizzes.index') }}"
                    class="app-nav__link {{ request()->routeIs('quizzes.*') ? 'app-nav__link--active' : '' }}">
                     Moje quizy
                 </a>
+
                 <a href="{{ route('friends.index') }}"
                    class="app-nav__link {{ request()->routeIs('friends.*') ? 'app-nav__link--active' : '' }}">
                     Znajomi
@@ -45,9 +47,15 @@
                         <span class="app-nav__badge">{{ $pendingCount }}</span>
                     @endif
                 </a>
+
                 <a href="{{ route('stats.index') }}"
                    class="app-nav__link {{ request()->routeIs('stats.*') ? 'app-nav__link--active' : '' }}">
                     Statystyki
+                </a>
+
+                <a href="{{ route('premium.show') }}"
+                   class="app-nav__link {{ request()->routeIs('premium.show') ? 'app-nav__link--active' : '' }}">
+                    ⚡ Premium
                 </a>
             </div>
 
@@ -61,6 +69,7 @@
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         @endif
                     </div>
+
                     <span class="app-nav__username">{{ auth()->user()->name }}</span>
                     <span class="app-nav__chevron">▾</span>
 
@@ -68,17 +77,24 @@
                         <div class="app-nav__dropdown-header">
                             <div class="app-nav__dropdown-name">{{ auth()->user()->name }}</div>
                             <div class="app-nav__dropdown-email">{{ auth()->user()->email }}</div>
+
                             @if(auth()->user()->isPremium())
                                 <span class="app-nav__premium-badge">⭐ Premium</span>
                             @endif
                         </div>
+
                         <div class="app-nav__dropdown-divider"></div>
+
                         @if(auth()->user()->is_admin)
                             <a href="{{ route('admin.quizzes') }}" class="app-nav__dropdown-item">🛡 Panel admina</a>
                             <div class="app-nav__dropdown-divider"></div>
                         @endif
+
+                        <a href="{{ route('premium.show') }}" class="app-nav__dropdown-item">⚡ Premium</a>
                         <a href="{{ route('profile.edit') }}" class="app-nav__dropdown-item">✏️ Edycja profilu</a>
+
                         <div class="app-nav__dropdown-divider"></div>
+
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="app-nav__dropdown-item app-nav__dropdown-item--danger">
@@ -97,10 +113,14 @@
             <a href="{{ route('quizzes.index') }}" class="app-nav__mobile-link">Moje quizy</a>
             <a href="{{ route('friends.index') }}" class="app-nav__mobile-link">Znajomi</a>
             <a href="{{ route('stats.index') }}" class="app-nav__mobile-link">Statystyki</a>
+            <a href="{{ route('premium.show') }}" class="app-nav__mobile-link">⚡ Premium</a>
+
             @if(auth()->user()->is_admin)
                 <a href="{{ route('admin.quizzes') }}" class="app-nav__mobile-link">🛡 Panel admina</a>
             @endif
+
             <a href="{{ route('profile.edit') }}" class="app-nav__mobile-link">✏️ Edycja profilu</a>
+
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="app-nav__mobile-link app-nav__mobile-link--danger">Wyloguj</button>
@@ -121,6 +141,7 @@
             ->with('quiz')
             ->get();
     @endphp
+
     @if($quizDeletedNotifications->isNotEmpty())
         <div id="notifOverlay" style="
             position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;
@@ -138,6 +159,7 @@
                         background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);
                         display:flex;align-items:center;justify-content:center;font-size:20px;
                     ">🛡</div>
+
                     <div>
                         <div style="font-size:17px;font-weight:700;color:#fff;">Powiadomienie od administracji</div>
                         <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px;">Quizzies Team</div>
@@ -168,19 +190,20 @@
         </div>
 
         <script>
-        function dismissNotifications() {
-            const ids = @json($quizDeletedNotifications->pluck('id'));
-            fetch('{{ route('notifications.markRead') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({ ids }),
-            }).finally(() => {
-                document.getElementById('notifOverlay').style.display = 'none';
-            });
-        }
+            function dismissNotifications() {
+                const ids = @json($quizDeletedNotifications->pluck('id'));
+
+                fetch('{{ route('notifications.markRead') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ ids }),
+                }).finally(() => {
+                    document.getElementById('notifOverlay').style.display = 'none';
+                });
+            }
         </script>
     @endif
     @endauth
@@ -188,19 +211,23 @@
     <script>
         const toggle = document.getElementById('userDropdownToggle');
         const dropdown = document.getElementById('userDropdown');
+
         if (toggle && dropdown) {
             toggle.addEventListener('click', e => {
                 e.stopPropagation();
                 toggle.classList.toggle('open');
                 dropdown.classList.toggle('app-nav__dropdown--open');
             });
+
             document.addEventListener('click', () => {
                 toggle.classList.remove('open');
                 dropdown.classList.remove('app-nav__dropdown--open');
             });
         }
+
         const hamburger = document.getElementById('mobileMenuToggle');
         const mobileMenu = document.getElementById('mobileMenu');
+
         if (hamburger && mobileMenu) {
             hamburger.addEventListener('click', () => mobileMenu.classList.toggle('app-nav__mobile--open'));
         }

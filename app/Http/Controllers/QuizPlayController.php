@@ -10,13 +10,47 @@ use Illuminate\Support\Facades\Auth;
 
 class QuizPlayController extends Controller
 {
+    private function canAccessQuiz(Quiz $quiz): bool
+    {
+        if (!$quiz->is_premium) {
+            return true;
+        }
+
+        if (!Auth::check()) {
+            return false;
+        }
+
+        $user = Auth::user()->fresh();
+
+        return $user && $user->isPremium();
+    }
+
+    private function blockPremiumQuizIfNeeded(Quiz $quiz)
+    {
+        if ($this->canAccessQuiz($quiz)) {
+            return null;
+        }
+
+        return redirect()
+            ->route(Auth::check() ? 'premium.show' : 'login')
+            ->with('error', 'Ten quiz jest dostępny tylko dla użytkowników Premium.');
+    }
+
     public function show(Quiz $quiz)
     {
         if (!$quiz->is_active) {
             abort(404);
         }
 
-        $quiz->load(['questions' => fn($q) => $q->orderBy('quiz_question.question_order')]);
+        $premiumBlock = $this->blockPremiumQuizIfNeeded($quiz);
+
+        if ($premiumBlock) {
+            return $premiumBlock;
+        }
+
+        $quiz->load([
+            'questions' => fn ($q) => $q->orderBy('quiz_question.question_order')
+        ]);
 
         if ($quiz->questions->isEmpty()) {
             return redirect()->back()->with('error', 'Ten quiz nie ma jeszcze pytań.');
@@ -27,6 +61,16 @@ class QuizPlayController extends Controller
 
     public function submit(Request $request, Quiz $quiz)
     {
+        if (!$quiz->is_active) {
+            abort(404);
+        }
+
+        $premiumBlock = $this->blockPremiumQuizIfNeeded($quiz);
+
+        if ($premiumBlock) {
+            return $premiumBlock;
+        }
+
         $request->validate([
             'answers'    => 'required|array',
             'time_spent' => 'nullable|integer|min:0',
@@ -34,7 +78,9 @@ class QuizPlayController extends Controller
 
         $timeSpent = max(0, (int) $request->input('time_spent', 0));
 
-        $quiz->load(['questions' => fn($q) => $q->orderBy('quiz_question.question_order')]);
+        $quiz->load([
+            'questions' => fn ($q) => $q->orderBy('quiz_question.question_order')
+        ]);
 
         $scorePoints = 0;
         $maxPoints   = $quiz->questions->count();
@@ -65,6 +111,7 @@ class QuizPlayController extends Controller
             }
 
             $answers = $question->answers;
+
             if (is_string($answers)) {
                 $answers = json_decode($answers, true) ?? [];
             }
@@ -91,7 +138,13 @@ class QuizPlayController extends Controller
 
         $percentage = $maxPoints > 0 ? round(($scorePoints / $maxPoints) * 100) : 0;
 
-        return view('quiz-result', compact('quiz', 'results', 'scorePoints', 'maxPoints', 'percentage'));
+        return view('quiz-result', compact(
+            'quiz',
+            'results',
+            'scorePoints',
+            'maxPoints',
+            'percentage'
+        ));
     }
 
     public function rate(Request $request, Quiz $quiz)
@@ -112,7 +165,7 @@ class QuizPlayController extends Controller
             ]
         );
 
-        $avg = QuizRating::where('quiz_id', $quiz->id)->avg('rating');
+        $avg   = QuizRating::where('quiz_id', $quiz->id)->avg('rating');
         $count = QuizRating::where('quiz_id', $quiz->id)->count();
 
         $quiz->update([
