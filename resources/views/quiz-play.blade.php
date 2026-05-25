@@ -16,9 +16,9 @@
         width:min(720px, calc(100% - 32px));
         margin:20px auto 0;
         padding:12px 16px;
-        background:rgba(16,185,129,0.15);
-        color:#d1fae5;
-        border:1px solid rgba(16,185,129,0.35);
+        background:rgba(46,158,91,0.15);
+        color:#d8f5e3;
+        border:1px solid rgba(46,158,91,0.35);
         border-radius:12px;
     ">
         {{ session('success') }}
@@ -32,9 +32,9 @@
         width:min(720px, calc(100% - 32px));
         margin:20px auto 0;
         padding:12px 16px;
-        background:rgba(239,68,68,0.15);
-        color:#fee2e2;
-        border:1px solid rgba(239,68,68,0.35);
+        background:rgba(214,69,69,0.15);
+        color:#ffe1e1;
+        border:1px solid rgba(214,69,69,0.35);
         border-radius:12px;
     ">
         {{ session('error') }}
@@ -61,7 +61,7 @@
     {{-- Backdrop --}}
     <div
         onclick="closeReportModal()"
-        style="position:absolute;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);"
+        style="position:absolute;inset:0;background:rgba(0,0,0,0.68);backdrop-filter:blur(4px);"
     ></div>
 
     {{-- Panel --}}
@@ -70,30 +70,32 @@
         z-index:1;
         width:min(480px,100%);
         margin-top:60px;
-        background:rgba(18,18,28,0.97);
-        border:1px solid rgba(255,107,0,0.25);
+        background:rgba(47,51,54,0.98);
+        border:1px solid rgba(199,202,204,0.16);
         border-radius:20px;
         padding:28px 28px 24px;
-        box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04);
+        box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03);
     ">
         {{-- Nagłówek --}}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
             <div style="display:flex;align-items:center;gap:10px;">
                 <div style="
                     width:32px;height:32px;border-radius:10px;
-                    background:rgba(239,68,68,0.15);
-                    border:1px solid rgba(239,68,68,0.3);
+                    background:rgba(255,107,0,0.14);
+                    border:1px solid rgba(255,107,0,0.35);
+                    color:#FF6B00;
                     display:flex;align-items:center;justify-content:center;
                     font-size:16px;
                 ">⚑</div>
-                <span style="color:#fff;font-weight:700;font-size:17px;">Zgłoś quiz</span>
+                <span style="color:#E6E8EA;font-weight:700;font-size:17px;">Zgłoś quiz</span>
             </div>
+
             <button
                 onclick="closeReportModal()"
                 style="
-                    background:rgba(255,255,255,0.06);
-                    border:1px solid rgba(255,255,255,0.1);
-                    color:rgba(255,255,255,0.5);
+                    background:rgba(73,77,80,0.45);
+                    border:1px solid rgba(199,202,204,0.16);
+                    color:rgba(230,232,234,0.62);
                     border-radius:8px;
                     width:30px;height:30px;
                     cursor:pointer;
@@ -102,16 +104,17 @@
                     font-family:'Outfit',sans-serif;
                     transition:.15s;
                 "
-                onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.25)'"
-                onmouseout="this.style.color='rgba(255,255,255,0.5)';this.style.borderColor='rgba(255,255,255,0.1)'"
+                onmouseover="this.style.color='#E6E8EA';this.style.borderColor='rgba(255,107,0,0.42)';this.style.background='rgba(73,77,80,0.7)'"
+                onmouseout="this.style.color='rgba(230,232,234,0.62)';this.style.borderColor='rgba(199,202,204,0.16)';this.style.background='rgba(73,77,80,0.45)'"
             >✕</button>
         </div>
 
         {{-- Powody --}}
         <div style="margin-bottom:18px;">
-            <div style="color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:.3px;text-transform:uppercase;margin-bottom:10px;">
+            <div style="color:rgba(230,232,234,0.62);font-size:12px;letter-spacing:.3px;text-transform:uppercase;margin-bottom:10px;">
                 Powód zgłoszenia
             </div>
+
             <div style="display:flex;flex-direction:column;gap:8px;" id="reportReasons">
                 @foreach([
                     ['spam',        '🚫', 'Spam lub reklama'],
@@ -124,11 +127,11 @@
                     display:flex;align-items:center;gap:12px;
                     padding:11px 14px;
                     border-radius:12px;
-                    border:1px solid rgba(255,255,255,0.07);
-                    background:rgba(255,255,255,0.03);
+                    border:1px solid rgba(199,202,204,0.12);
+                    background:rgba(73,77,80,0.32);
                     cursor:pointer;
                     transition:.15s;
-                    color:rgba(255,255,255,0.75);
+                    color:rgba(230,232,234,0.78);
                     font-size:14px;
                 " class="report-reason-label">
                     <input
@@ -136,7 +139,7 @@
                         name="report_reason"
                         value="{{ $val }}"
                         onchange="onReasonChange(this)"
-                        style="accent-color:#ff6b00;width:16px;height:16px;flex-shrink:0;"
+                        style="accent-color:#FF6B00;width:16px;height:16px;flex-shrink:0;"
                     >
                     <span style="font-size:15px;">{{ $icon }}</span>
                     {{ $label }}
@@ -148,11 +151,12 @@
         {{-- Opis --}}
         <div id="reportDescWrap" style="margin-bottom:18px;">
             <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
-                <div style="color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:.3px;text-transform:uppercase;">
+                <div style="color:rgba(230,232,234,0.62);font-size:12px;letter-spacing:.3px;text-transform:uppercase;">
                     Opis
                 </div>
-                <div id="reportDescHint" style="color:rgba(255,255,255,0.3);font-size:11px;">opcjonalny</div>
+                <div id="reportDescHint" style="color:rgba(154,160,166,0.9);font-size:11px;">opcjonalny</div>
             </div>
+
             <textarea
                 id="reportDescInput"
                 placeholder="Opisz szczegółowo problem…"
@@ -160,10 +164,10 @@
                 rows="3"
                 style="
                     width:100%;
-                    background:rgba(255,255,255,0.04);
-                    border:1px solid rgba(255,255,255,0.09);
+                    background:rgba(31,34,37,0.72);
+                    border:1px solid rgba(199,202,204,0.14);
                     border-radius:12px;
-                    color:#fff;
+                    color:#E6E8EA;
                     font-size:14px;
                     font-family:'Outfit',sans-serif;
                     padding:11px 14px;
@@ -172,8 +176,8 @@
                     transition:.15s;
                     box-sizing:border-box;
                 "
-                onfocus="this.style.borderColor='rgba(255,107,0,0.5)'"
-                onblur="this.style.borderColor='rgba(255,255,255,0.09)'"
+                onfocus="this.style.borderColor='rgba(255,107,0,0.65)'"
+                onblur="this.style.borderColor='rgba(199,202,204,0.14)'"
             ></textarea>
         </div>
 
@@ -182,9 +186,9 @@
             <button
                 onclick="closeReportModal()"
                 style="
-                    background:rgba(255,255,255,0.05);
-                    border:1px solid rgba(255,255,255,0.1);
-                    color:rgba(255,255,255,0.6);
+                    background:rgba(73,77,80,0.45);
+                    border:1px solid rgba(199,202,204,0.16);
+                    color:rgba(230,232,234,0.72);
                     border-radius:10px;
                     padding:10px 18px;
                     font-size:14px;
@@ -192,8 +196,8 @@
                     font-family:'Outfit',sans-serif;
                     transition:.15s;
                 "
-                onmouseover="this.style.background='rgba(255,255,255,0.09)'"
-                onmouseout="this.style.background='rgba(255,255,255,0.05)'"
+                onmouseover="this.style.background='rgba(73,77,80,0.7)'"
+                onmouseout="this.style.background='rgba(73,77,80,0.45)'"
             >Anuluj</button>
 
             <button
@@ -201,7 +205,7 @@
                 id="reportSubmitBtn"
                 disabled
                 style="
-                    background:linear-gradient(135deg,#c41f1f,#e53e3e);
+                    background:linear-gradient(135deg,#FF6B00,#E65F00);
                     border:none;
                     color:#fff;
                     border-radius:10px;
@@ -212,6 +216,7 @@
                     font-family:'Outfit',sans-serif;
                     opacity:.45;
                     transition:.15s;
+                    box-shadow:0 10px 24px rgba(255,107,0,0.24);
                 "
             >Wyślij zgłoszenie</button>
         </div>
@@ -270,7 +275,7 @@
                 {{-- Header --}}
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                        <span style="color:#ff6b00;font-weight:700;font-size:14px;letter-spacing:.2px;">
+                        <span style="color:#FF6B00;font-weight:700;font-size:14px;letter-spacing:.2px;">
                             {{ $quiz->title }}
                         </span>
 
@@ -279,15 +284,18 @@
                                 type="button"
                                 onclick="openReportModal()"
                                 style="
-                                    background:rgba(239,68,68,0.12);
-                                    border:1px solid rgba(239,68,68,0.35);
-                                    color:#fecaca;
+                                    background:rgba(255,107,0,0.12);
+                                    border:1px solid rgba(255,107,0,0.35);
+                                    color:#FFD7B5;
                                     border-radius:999px;
                                     padding:6px 10px;
                                     font-size:12px;
                                     cursor:pointer;
                                     font-family:'Outfit',sans-serif;
+                                    transition:.15s;
                                 "
+                                onmouseover="this.style.background='rgba(255,107,0,0.18)';this.style.borderColor='rgba(255,107,0,0.55)'"
+                                onmouseout="this.style.background='rgba(255,107,0,0.12)';this.style.borderColor='rgba(255,107,0,0.35)'"
                             >
                                 Zgłoś quiz
                             </button>
@@ -297,13 +305,14 @@
                             <a
                                 href="{{ route('login') }}"
                                 style="
-                                    color:#fecaca;
+                                    color:#FFD7B5;
                                     font-size:12px;
                                     text-decoration:none;
-                                    border:1px solid rgba(239,68,68,0.35);
+                                    border:1px solid rgba(255,107,0,0.35);
                                     border-radius:999px;
                                     padding:6px 10px;
-                                    background:rgba(239,68,68,0.12);
+                                    background:rgba(255,107,0,0.12);
+                                    transition:.15s;
                                 "
                             >
                                 Zaloguj się, aby zgłosić
@@ -312,22 +321,22 @@
                     </div>
 
                     <div style="text-align:center;min-width:140px;">
-                        <div style="color:rgba(255,255,255,0.4);font-size:12px;letter-spacing:.15px;">
+                        <div style="color:rgba(230,232,234,0.45);font-size:12px;letter-spacing:.15px;">
                             Czas rozwiązywania
                         </div>
-                        <div id="timerDisplay" style="color:#fff;font-size:16px;font-weight:800;">
+                        <div id="timerDisplay" style="color:#E6E8EA;font-size:16px;font-weight:800;">
                             00:00
                         </div>
                     </div>
 
-                    <span style="color:rgba(255,255,255,0.4);font-size:13px;">
+                    <span style="color:rgba(230,232,234,0.45);font-size:13px;">
                         Pytanie {{ $i + 1 }} / {{ $total }}
                     </span>
                 </div>
 
                 {{-- Progress --}}
-                <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:28px;overflow:hidden;">
-                    <div style="height:100%;width:{{ round((($i + 1) / $total) * 100) }}%;background:linear-gradient(135deg,#ff6b00,#ff9a3c);border-radius:2px;"></div>
+                <div style="height:4px;background:rgba(199,202,204,0.12);border-radius:2px;margin-bottom:28px;overflow:hidden;">
+                    <div style="height:100%;width:{{ round((($i + 1) / $total) * 100) }}%;background:linear-gradient(135deg,#FF6B00,#F2A541);border-radius:2px;"></div>
                 </div>
 
                 <div class="dash-panel" style="margin-bottom:0;">
@@ -341,7 +350,7 @@
                     @endif
 
                     {{-- Question --}}
-                    <div style="font-size:20px;font-weight:700;color:#fff;line-height:1.35;margin-bottom:22px;">
+                    <div style="font-size:20px;font-weight:700;color:#E6E8EA;line-height:1.35;margin-bottom:22px;">
                         {{ $question->content }}
                     </div>
 
@@ -358,19 +367,19 @@
                                     style="
                                         padding:13px 16px;
                                         border-radius:12px;
-                                        background:rgba(255,255,255,0.04);
-                                        border:1px solid rgba(255,255,255,0.08);
+                                        background:rgba(73,77,80,0.32);
+                                        border:1px solid rgba(199,202,204,0.12);
                                         cursor:pointer;
                                         transition:.2s ease;
-                                        color:rgba(255,255,255,0.8);
+                                        color:rgba(230,232,234,0.8);
                                         font-size:15px;
                                         display:flex;
                                         align-items:center;
                                         gap:12px;
                                         user-select:none;
                                     "
-                                    onmouseover="if(!this.classList.contains('active')){this.style.borderColor='rgba(255,107,0,0.4)';this.style.background='rgba(255,107,0,0.06)';}"
-                                    onmouseout="if(!this.classList.contains('active')){this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';}"
+                                    onmouseover="if(!this.classList.contains('active')){this.style.borderColor='rgba(255,107,0,0.42)';this.style.background='rgba(255,107,0,0.07)';}"
+                                    onmouseout="if(!this.classList.contains('active')){this.style.borderColor='rgba(199,202,204,0.12)';this.style.background='rgba(73,77,80,0.32)';}"
                                 >
                                     <span
                                         class="qp-letter"
@@ -378,7 +387,7 @@
                                             width:28px;
                                             height:28px;
                                             border-radius:50%;
-                                            background:rgba(255,255,255,0.08);
+                                            background:rgba(199,202,204,0.12);
                                             display:inline-flex;
                                             align-items:center;
                                             justify-content:center;
@@ -398,23 +407,23 @@
                     </div>
 
                     {{-- Actions --}}
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid rgba(199,202,204,0.12);">
                         @if($i > 0)
                             <button
                                 type="button"
                                 onclick="goTo({{ $i - 1 }})"
-                                style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:14px;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;padding:0;"
-                                onmouseover="this.style.color='rgba(255,255,255,0.8)'"
-                                onmouseout="this.style.color='rgba(255,255,255,0.4)'"
+                                style="background:none;border:none;color:rgba(230,232,234,0.45);font-size:14px;cursor:pointer;font-family:'Outfit',sans-serif;transition:.2s;padding:0;"
+                                onmouseover="this.style.color='rgba(230,232,234,0.82)'"
+                                onmouseout="this.style.color='rgba(230,232,234,0.45)'"
                             >
                                 ← Poprzednie
                             </button>
                         @else
                             <a
                                 href="{{ url('/') }}"
-                                style="color:rgba(255,255,255,0.4);font-size:14px;text-decoration:none;transition:.2s;"
-                                onmouseover="this.style.color='rgba(255,255,255,0.8)'"
-                                onmouseout="this.style.color='rgba(255,255,255,0.4)'"
+                                style="color:rgba(230,232,234,0.45);font-size:14px;text-decoration:none;transition:.2s;"
+                                onmouseover="this.style.color='rgba(230,232,234,0.82)'"
+                                onmouseout="this.style.color='rgba(230,232,234,0.45)'"
                             >
                                 ← Wyjdź
                             </a>
@@ -440,24 +449,34 @@
 
 <style>
 .qp-answer.active {
-    background: rgba(255,107,0,0.12) !important;
-    border-color: #ff6b00 !important;
+    background: rgba(255,107,0,0.14) !important;
+    border-color: rgba(255,107,0,0.85) !important;
     color: #fff !important;
 }
 
 .qp-answer.active .qp-letter {
-    background: #ff6b00 !important;
+    background: #FF6B00 !important;
     color: #fff !important;
 }
 
+.report-reason-label:hover {
+    background: rgba(255,107,0,0.06) !important;
+    border-color: rgba(255,107,0,0.28) !important;
+    color: #E6E8EA !important;
+}
+
 .report-reason-label:has(input:checked) {
-    background: rgba(239,68,68,0.1) !important;
-    border-color: rgba(239,68,68,0.4) !important;
+    background: rgba(255,107,0,0.12) !important;
+    border-color: rgba(255,107,0,0.75) !important;
     color: #fff !important;
 }
 
 #reportModal.open {
     display: flex !important;
+}
+
+#reportDescInput::placeholder {
+    color: rgba(154,160,166,0.75);
 }
 </style>
 
@@ -548,14 +567,17 @@ function prepareSubmit() {
 function openReportModal() {
     const modal = document.getElementById('reportModal');
     if (!modal) return;
+
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
 
-    // Reset stanu
     document.querySelectorAll('input[name="report_reason"]').forEach(r => r.checked = false);
+
     const descInput = document.getElementById('reportDescInput');
     if (descInput) descInput.value = '';
-    updateReportDescHint('other', false);
+
+    updateReportDescHint('', false);
+
     const btn = document.getElementById('reportSubmitBtn');
     if (btn) {
         btn.disabled = true;
@@ -567,6 +589,7 @@ function openReportModal() {
 function closeReportModal() {
     const modal = document.getElementById('reportModal');
     if (!modal) return;
+
     modal.classList.remove('open');
     document.body.style.overflow = '';
 }
@@ -590,14 +613,14 @@ function updateReportDescHint(value, isOther) {
 
     if (isOther) {
         hint.textContent = 'wymagany';
-        hint.style.color = 'rgba(239,68,68,0.7)';
+        hint.style.color = 'rgba(214,69,69,0.85)';
         textarea.placeholder = 'Opisz szczegółowo problem…';
-        textarea.style.borderColor = 'rgba(239,68,68,0.3)';
+        textarea.style.borderColor = 'rgba(214,69,69,0.45)';
     } else {
         hint.textContent = 'opcjonalny';
-        hint.style.color = 'rgba(255,255,255,0.3)';
+        hint.style.color = 'rgba(154,160,166,0.9)';
         textarea.placeholder = 'Opisz szczegółowo problem…';
-        textarea.style.borderColor = 'rgba(255,255,255,0.09)';
+        textarea.style.borderColor = 'rgba(199,202,204,0.14)';
     }
 }
 
@@ -608,7 +631,7 @@ function submitReport() {
     if (!reason) return;
 
     if (reason.value === 'other' && (!desc || !desc.value.trim())) {
-        desc.style.borderColor = 'rgba(239,68,68,0.6)';
+        desc.style.borderColor = 'rgba(214,69,69,0.75)';
         desc.focus();
         return;
     }
@@ -618,7 +641,6 @@ function submitReport() {
     document.getElementById('quizReportForm').submit();
 }
 
-// Zamknij modal klawiszem Escape
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeReportModal();
 });
