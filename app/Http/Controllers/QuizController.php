@@ -41,50 +41,28 @@ class QuizController extends Controller
         'questions_json' => 'required|string',
     ]);
 
-    $quiz = Quiz::create([
-        'user_id'     => Auth::id(),
-        'title'       => $request->title,
-        'description' => $request->description,
-        'category_id' => $request->category_id ?: null,
-
-        // TYLKO użytkownik Premium może stworzyć quiz Premium
-        'is_premium'  => $request->boolean('is_premium') && auth()->user()->isPremium(),
-
-        'is_active'   => $request->is_active !== '0',
-    ]);
-
     $questionsData = json_decode($request->questions_json, true);
 
     if (!is_array($questionsData) || count($questionsData) === 0) {
-        $quiz->delete();
-
         return back()
             ->withInput()
             ->with('error', 'Quiz musi mieć przynajmniej jedno pytanie.');
     }
 
-    $order = 1;
-
-    foreach ($questionsData as $qData) {
-        $question = \App\Models\Question::create([
-            'creator_id'       => Auth::id(),
-            'category_id'      => $request->category_id ?: null,
-            'content'          => $qData['text'] ?? '',
-            'question_type'    => $qData['type'] ?? 'single_choice',
-            'answers'          => json_encode(array_values(array_filter($qData['answers'] ?? [], fn ($a) => $a !== ''))),
-            'correct_answers'  => json_encode($qData['correct'] ?? []),
-            'is_public_base'   => false,
-        ]);
-
-        $quiz->questions()->attach($question->id, [
-            'question_order' => $order++,
-            'points'         => 1,
-        ]);
-    }
-
-    $quiz->update([
-        'questions_count' => count($questionsData),
+    $quiz = Quiz::create([
+        'user_id'     => Auth::id(),
+        'title'       => $request->title,
+        'description' => $request->description,
+        'category_id' => $request->category_id ?: null,
+        'is_premium'  => $request->boolean('is_premium') && auth()->user()->isPremium(),
+        'is_active'   => $request->is_active !== '0',
     ]);
+
+    $this->syncQuestions(
+        $quiz,
+        $request->input('questions_json'),
+        $request->allFiles()
+    );
 
     return redirect()
         ->route('quizzes.index')
@@ -197,78 +175,108 @@ class QuizController extends Controller
         return redirect()->route('quizzes.index')->with('success', 'Quiz usunięty.');
     }
 
-    private function syncQuestions(Quiz $quiz, string $questionsJson, array $files = []): void
-    {
-        $questions = json_decode($questionsJson, true);
-        if (!is_array($questions)) return;
+private function syncQuestions(Quiz $quiz, string $questionsJson, array $files = []): void
+{
+    $questions = json_decode($questionsJson, true);
 
-        $syncData = [];
-        $order = 1;
-        $currentQuizQuestionIds = $quiz->questions()->pluck('questions.id')->toArray();
+    if (!is_array($questions)) {
+        return;
+    }
 
-        foreach ($questions as $idx => $q) {
-            $text    = trim($q['text'] ?? '');
-            $type    = $q['type'] ?? 'single_choice';
-            $answers = is_array($q['answers']) ? $q['answers'] : ['', '', '', ''];
-            $correct = is_array($q['correct']) ? $q['correct'] : [];
+    $syncData = [];
+    $order = 1;
+    $currentQuizQuestionIds = $quiz->questions()->pluck('questions.id')->toArray();
 
-            if (!$text) {
-                continue;
-            }
+    foreach ($questions as $idx => $q) {
+        $text    = trim($q['text'] ?? '');
+        $type    = $q['type'] ?? 'single_choice';
+        $answers = is_array($q['answers'] ?? null) ? $q['answers'] : ['', '', '', ''];
+        $correct = is_array($q['correct'] ?? null) ? $q['correct'] : [];
 
-            $existingId = null;
-            if (isset($q['id']) && is_numeric($q['id'])) {
-                $existingId = (int) $q['id'];
-                if ($existingId <= 0) {
-                    $existingId = null;
-                }
-            }
-
-            $question = $existingId ? \App\Models\Question::find($existingId) : null;
-
-            if (!$question) {
-                $question = new \App\Models\Question();
-                $question->creator_id = Auth::id();
-                $question->category_id = $quiz->category_id; // inherit quiz category for new questions
-                $canModifyQuestion = true;
-            } else {
-                $belongsToQuiz = in_array($question->id, $currentQuizQuestionIds, true);
-                $canModifyQuestion = $belongsToQuiz && $question->creator_id === Auth::id();
-            }
-
-            if ($canModifyQuestion) {
-                $question->content         = $text;
-                $question->question_type   = $type;
-                // Model ma $casts = ['answers' => 'array'] więc przypisujemy array bezpośrednio
-                $question->answers         = array_values($answers);
-                $question->correct_answers = array_values($correct);
-                $question->category_id     = $quiz->category_id;
-
-                $fileKey = 'image_q_' . $idx;
-                if (isset($files[$fileKey])) {
-                    if ($question->image_path) {
-                        Storage::disk('public')->delete($question->image_path);
-                    }
-                    $path = $files[$fileKey]->store('question_images', 'public');
-                    $question->image_path = $path;
-                } elseif (!empty($q['remove_image'])) {
-                    if ($question->image_path) {
-                        Storage::disk('public')->delete($question->image_path);
-                    }
-                    $question->image_path = null;
-                }
-
-                $question->save();
-            }
-
-            if (empty($question->id)) {
-                continue;
-            }
-
-            $syncData[(int) $question->id] = ['question_order' => $order++];
+        if (!$text) {
+            continue;
         }
 
-        $quiz->questions()->sync($syncData);
-        $quiz->update(['questions_count' => count($syncData)]);
+        $existingId = null;
+
+        if (isset($q['id']) && is_numeric($q['id'])) {
+            $existingId = (int) $q['id'];
+
+            if ($existingId <= 0) {
+                $existingId = null;
+            }
+        }
+
+        $question = $existingId ? \App\Models\Question::find($existingId) : null;
+
+        if (!$question) {
+            $question = new \App\Models\Question();
+            $question->creator_id = Auth::id();
+            $question->category_id = $quiz->category_id;
+            $canModifyQuestion = true;
+        } else {
+            $belongsToQuiz = in_array($question->id, $currentQuizQuestionIds, true);
+            $canModifyQuestion = $belongsToQuiz && $question->creator_id === Auth::id();
+        }
+
+        if ($canModifyQuestion) {
+            $question->content = $text;
+            $question->question_type = $type;
+            $question->answers = array_values($answers);
+            $question->correct_answers = array_values($correct);
+            $question->category_id = $quiz->category_id;
+
+            /*
+             * Obsługa zdjęć w dwóch formatach:
+             * 1. image_q_0, image_q_1 itd.
+             * 2. question_images[id_pytania] albo question_images[id_z_frontendu]
+             */
+            $file = null;
+
+            $fileKey = 'image_q_' . $idx;
+
+            if (isset($files[$fileKey])) {
+                $file = $files[$fileKey];
+            } elseif (isset($files['question_images']) && is_array($files['question_images'])) {
+                $questionKey = $q['id'] ?? null;
+
+                if ($questionKey !== null && isset($files['question_images'][$questionKey])) {
+                    $file = $files['question_images'][$questionKey];
+                }
+            }
+
+            if ($file) {
+                if ($question->image_path) {
+                    Storage::disk('public')->delete($question->image_path);
+                }
+
+                $path = $file->store('question_images', 'public');
+                $question->image_path = $path;
+            } elseif (!empty($q['remove_image'])) {
+                if ($question->image_path) {
+                    Storage::disk('public')->delete($question->image_path);
+                }
+
+                $question->image_path = null;
+            }
+
+            $question->save();
+        }
+
+        if (empty($question->id)) {
+            continue;
+        }
+
+        $syncData[(int) $question->id] = [
+            'question_order' => $order++,
+            'points' => 1,
+        ];
     }
+
+    $quiz->questions()->sync($syncData);
+
+    $quiz->update([
+        'questions_count' => count($syncData),
+    ]);
+}
 }
