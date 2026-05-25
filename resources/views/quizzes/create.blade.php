@@ -299,7 +299,7 @@
 </form>
 
 <script>
-let questions = [{ id: 1, text: '', type: 'single_choice', answers: ['','','',''], correct: [] }];
+let questions = [{ id: 'temp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8), text: '', type: 'single_choice', answers: ['','','',''], correct: [] }];
 let currentQ = 0;
 let questionImages = {};
 
@@ -444,16 +444,13 @@ function renderAvailableQuestions(list) {
     list.forEach(q => {
         const el = document.createElement('div');
         el.className = 'question-item';
-        el.style.display = 'flex';
-        el.style.justifyContent = 'space-between';
-        el.style.alignItems = 'center';
-        el.style.gap = '8px';
+        el.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;';
         el.innerHTML = `<div style="flex:1;margin-right:8px;"><div style="font-size:13px;color:rgba(255,255,255,0.85);">${q.text}</div><div class="small-note">Autor: ${q.creator_name || 'Anonim'}</div></div>`;
         const btn = document.createElement('button');
         btn.className = 'qb-btn qb-btn-primary';
+        btn.style.cssText = 'height:32px;padding:0 12px;font-size:13px;flex-shrink:0;';
         btn.textContent = 'Dodaj';
         btn.addEventListener('click', () => {
-            // Add question to quiz as read-only if not editable
             const newQ = {
                 id: q.id,
                 text: q.text,
@@ -466,6 +463,7 @@ function renderAvailableQuestions(list) {
             saveCurrentToState();
             questions.push(newQ);
             switchTo(questions.length - 1);
+            el.remove();
             showToast('Dodano pytanie z bazy');
         });
         el.appendChild(btn);
@@ -486,6 +484,7 @@ function applyEditability() {
 
 function saveCurrentToState() {
     const q = questions[currentQ];
+    if (q.from_db && !q.can_edit) return;
     q.text = questionText.value.trim();
     q.type = questionType.value;
     answersGrid.querySelectorAll('input[type=text]').forEach(inp => { q.answers[parseInt(inp.dataset.idx)] = inp.value; });
@@ -493,7 +492,7 @@ function saveCurrentToState() {
 
 document.getElementById('addQuestionBtn').addEventListener('click', () => {
     saveCurrentToState();
-    questions.push({ id: Date.now(), text: '', type: 'single_choice', answers: ['','','',''], correct: [] });
+    questions.push({ id: 'temp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8), text: '', type: 'single_choice', answers: ['','','',''], correct: [] });
     switchTo(questions.length - 1);
     showToast('Dodano nowe pytanie');
 });

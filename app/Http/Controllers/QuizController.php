@@ -167,30 +167,36 @@ class QuizController extends Controller
 
         $syncData = [];
         $order = 1;
+        $currentQuizQuestionIds = $quiz->questions()->pluck('questions.id')->toArray();
 
         foreach ($questions as $idx => $q) {
             $text    = trim($q['text'] ?? '');
             $type    = $q['type'] ?? 'single_choice';
-            $answers = $q['answers'] ?? ['', '', '', ''];
-            $correct = $q['correct'] ?? [];
+            $answers = is_array($q['answers']) ? $q['answers'] : ['', '', '', ''];
+            $correct = is_array($q['correct']) ? $q['correct'] : [];
 
-            if (!$text) continue;
+            if (!$text) {
+                continue;
+            }
 
-            $existingId = isset($q['id']) && is_numeric($q['id']) && $q['id'] < 1_000_000_000
-                ? (int)$q['id'] : null;
+            $existingId = null;
+            if (isset($q['id']) && is_numeric($q['id'])) {
+                $existingId = (int) $q['id'];
+                if ($existingId <= 0) {
+                    $existingId = null;
+                }
+            }
 
             $question = $existingId ? \App\Models\Question::find($existingId) : null;
-
-            // If question exists and is not created by current user, do not overwrite its content/answers/image.
-            $canModifyQuestion = true;
-            if ($question && $question->creator_id !== Auth::id()) {
-                $canModifyQuestion = false;
-            }
 
             if (!$question) {
                 $question = new \App\Models\Question();
                 $question->creator_id = Auth::id();
                 $question->category_id = $quiz->category_id; // inherit quiz category for new questions
+                $canModifyQuestion = true;
+            } else {
+                $belongsToQuiz = in_array($question->id, $currentQuizQuestionIds, true);
+                $canModifyQuestion = $belongsToQuiz && $question->creator_id === Auth::id();
             }
 
             if ($canModifyQuestion) {
@@ -198,18 +204,16 @@ class QuizController extends Controller
                 $question->question_type   = $type;
                 $question->answers         = json_encode(array_values($answers));
                 $question->correct_answers = json_encode(array_values($correct));
-                $question->category_id     = $quiz->category_id; // keep category in sync with quiz
+                $question->category_id     = $quiz->category_id;
 
-                // Handle image upload for this question (key: image_q_{idx})
                 $fileKey = 'image_q_' . $idx;
                 if (isset($files[$fileKey])) {
-                    // Delete old image if exists
                     if ($question->image_path) {
                         Storage::disk('public')->delete($question->image_path);
                     }
                     $path = $files[$fileKey]->store('question_images', 'public');
                     $question->image_path = $path;
-                } elseif (isset($q['remove_image']) && $q['remove_image']) {
+                } elseif (!empty($q['remove_image'])) {
                     if ($question->image_path) {
                         Storage::disk('public')->delete($question->image_path);
                     }
@@ -219,7 +223,11 @@ class QuizController extends Controller
                 $question->save();
             }
 
-            $syncData[$question->id] = ['question_order' => $order++];
+            if (empty($question->id)) {
+                continue;
+            }
+
+            $syncData[(int) $question->id] = ['question_order' => $order++];
         }
 
         $quiz->questions()->sync($syncData);

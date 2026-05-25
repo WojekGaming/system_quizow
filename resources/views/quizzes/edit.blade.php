@@ -305,7 +305,7 @@
 <script>
 const existingQuestions = {!! json_encode($questionsJson) !!};
 
-let questions = existingQuestions.length > 0 ? existingQuestions : [{ id: Date.now(), text: '', type: 'single_choice', answers: ['','','',''], correct: [] }];
+let questions = existingQuestions.length > 0 ? existingQuestions : [{ id: 'temp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8), text: '', type: 'single_choice', answers: ['','','',''], correct: [] }];
 let currentQ = 0;
 let questionImages = {};
 
@@ -518,7 +518,7 @@ function saveCurrentToState() {
 
 document.getElementById('addQuestionBtn').addEventListener('click', () => {
     saveCurrentToState();
-    questions.push({ id: Date.now(), text: '', type: 'single_choice', answers: ['','','',''], correct: [] });
+    questions.push({ id: 'temp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8), text: '', type: 'single_choice', answers: ['','','',''], correct: [] });
     switchTo(questions.length - 1);
     showToast('Dodano nowe pytanie');
 });
