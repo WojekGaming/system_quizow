@@ -13,6 +13,6 @@ class CustomVerifyEmail extends VerifyEmailNotification
 
         return (new MailMessage)
             ->subject('Zweryfikuj swój adres email - Quizzies')
-            ->view('emails.verify-email', ['url' => $verificationUrl]);
+            ->view('emails.verify-email', ['verificationUrl' => $verificationUrl]);
     }
 }
