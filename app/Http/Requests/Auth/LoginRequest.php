@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
 
         if (!Auth::attempt([$loginType => $this->input('login'), 'password' => $this->input('password')], $this->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'login' => __('auth.failed'),
+                'login' => 'Podane dane logowania są nieprawidłowe.',
             ]);
         }
 
