@@ -239,8 +239,9 @@ class QuizController extends Controller
             if ($canModifyQuestion) {
                 $question->content         = $text;
                 $question->question_type   = $type;
-                $question->answers         = json_encode(array_values($answers));
-                $question->correct_answers = json_encode(array_values($correct));
+                // Model ma $casts = ['answers' => 'array'] więc przypisujemy array bezpośrednio
+                $question->answers         = array_values($answers);
+                $question->correct_answers = array_values($correct);
                 $question->category_id     = $quiz->category_id;
 
                 $fileKey = 'image_q_' . $idx;

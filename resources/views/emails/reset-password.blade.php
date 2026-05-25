@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Potwierdź swój adres email – Quizzies</title>
+    <title>Resetowanie hasła – Quizzies</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Manrope:wght@400;500;600&display=swap');
 
@@ -20,6 +20,7 @@
         .email-wrapper {
             width: 100%;
             background-color: #0d0d0d;
+            /* subtle noise-like dot grid matching site bg */
             background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
             background-size: 28px 28px;
             padding: 52px 16px;
@@ -54,7 +55,11 @@
             box-shadow: 0 0 18px rgba(230,92,0,0.55), 0 0 40px rgba(230,92,0,0.2);
         }
 
-        .logo-icon svg { width: 20px; height: 20px; fill: #fff; }
+        .logo-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
 
         .logo-text {
             font-family: 'Syne', sans-serif;
@@ -77,6 +82,7 @@
                 0 40px 80px rgba(0,0,0,0.7);
         }
 
+        /* orange top bar — same as site's accent line */
         .card-accent {
             height: 3px;
             background: linear-gradient(90deg, #e65c00, #ff8c00 50%, #e65c00);
@@ -97,7 +103,11 @@
             justify-content: center;
         }
 
-        .icon-badge svg { width: 28px; height: 28px; fill: #ff8c00; }
+        .icon-badge svg {
+            width: 28px;
+            height: 28px;
+            fill: #ff8c00;
+        }
 
         /* ── Typography ── */
         .email-title {
@@ -135,7 +145,7 @@
             margin: 0 0 36px;
         }
 
-        /* ── CTA button ── */
+        /* ── CTA button — matches "Zacznij za darmo" / "Zagraj →" style ── */
         .cta-wrapper {
             text-align: center;
             margin-bottom: 28px;
@@ -184,22 +194,50 @@
             text-decoration: none;
         }
 
-        /* ── Expiry notice ── */
-        .expiry-notice {
+        /* ── Warning (not-me notice) ── */
+        .warning-notice {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: flex-start;
+            gap: 10px;
             background: rgba(230,92,0,0.05);
             border: 1px solid rgba(230,92,0,0.14);
             border-radius: 8px;
             padding: 13px 15px;
+            margin-bottom: 18px;
+        }
+
+        .warning-notice svg {
+            width: 15px;
+            height: 15px;
+            fill: #e65c00;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .warning-text {
+            font-size: 12px;
+            color: #777;
+            line-height: 1.65;
+        }
+
+        .warning-text strong { color: #e65c00; font-weight: 600; }
+
+        /* ── Expiry ── */
+        .expiry-notice {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1e1e1e;
+            border-radius: 8px;
+            padding: 11px 15px;
             margin-bottom: 28px;
         }
 
-        .expiry-notice svg { width: 15px; height: 15px; fill: #e65c00; flex-shrink: 0; }
+        .expiry-notice svg { width: 14px; height: 14px; fill: #444; flex-shrink: 0; }
 
-        .expiry-text { font-size: 12px; color: #777; line-height: 1.5; }
-        .expiry-text strong { color: #e65c00; font-weight: 600; }
+        .expiry-text { font-size: 12px; color: #484848; line-height: 1.5; }
+        .expiry-text strong { color: #777; font-weight: 600; }
 
         /* ── Security footnote ── */
         .security-notice {
@@ -272,40 +310,50 @@
             <div class="card-accent"></div>
 
             <div class="card-body">
-                <h1 class="email-title">Potwierdź swój adres email</h1>
+                <h1 class="email-title">Resetowanie hasła</h1>
 
                 <p class="email-greeting">
-                    Cześć, <strong>{{ $user->name ?? 'Graczu' }}</strong>! 👋
+                    Cześć, <strong>{{ $user->name ?? 'Graczu' }}</strong>!
                 </p>
                 <p class="email-description">
-                    Dziękujemy za rejestrację w Quizzies. Kliknij poniższy przycisk,<br>
-                    aby aktywować swoje konto i zacząć rywalizację.
+                    Otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta.<br>
+                    Kliknij poniższy przycisk, aby ustawić nowe hasło.
                 </p>
 
                 <div class="divider"></div>
 
                 <div class="cta-wrapper">
-                    <a href="{{ $verificationUrl }}" class="cta-button">Zweryfikuj email</a>
+                    <a href="{{ $resetUrl }}" class="cta-button">Zresetuj hasło</a>
                 </div>
 
                 <div class="fallback-section">
                     <div class="fallback-label">lub skopiuj link do przeglądarki</div>
-                    <a href="{{ $verificationUrl }}" class="fallback-url">{{ $verificationUrl }}</a>
+                    <a href="{{ $resetUrl }}" class="fallback-url">{{ $resetUrl }}</a>
+                </div>
+
+                <div class="warning-notice">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 21H23L12 2L1 21ZM13 18H11V16H13V18ZM13 14H11V10H13V14Z"/>
+                    </svg>
+                    <span class="warning-text">
+                        <strong>Nie prosiłeś o zmianę hasła?</strong> Zignoruj tę wiadomość.
+                        Twoje hasło pozostanie bez zmian i nikt nie uzyska dostępu do konta.
+                    </span>
                 </div>
 
                 <div class="expiry-notice">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 17L7 12L8.41 10.59L12 14.17L15.59 10.59L17 12L12 17ZM12 7V13H13V7H12Z"/>
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z"/>
                     </svg>
                     <span class="expiry-text">
-                        Link weryfikacyjny wygasa za <strong>{{ config('auth.verification.expire', 60) }} minut</strong>.
-                        Po tym czasie będziesz musiał poprosić o nowy link.
+                        Link wygasa za <strong>{{ config('auth.passwords.users.expire', 60) }} minut</strong>
+                        od momentu wysłania wiadomości.
                     </span>
                 </div>
 
                 <p class="security-notice">
-                    Jeśli nie zakładałeś konta w Quizzies, zignoruj tę wiadomość.<br>
-                    Żadne działanie nie jest wymagane.
+                    Ze względów bezpieczeństwa ten link działa tylko raz.<br>
+                    Po jego użyciu stanie się nieaktywny.
                 </p>
             </div>
 
